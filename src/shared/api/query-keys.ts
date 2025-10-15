@@ -1,0 +1,17 @@
+export const queryKeys = {
+  guides: () => ['guides'] as const,
+  guideDetail: (guideId: string) => ['guides','detail', guideId] as const,
+  exercisesByGuide: (guideId: string) => ['exercises','by-guide', guideId] as const,
+  exercisesAll: () => ['exercises','all'] as const,
+  exerciseDetail: (exerciseId: string) => ['exercises','detail', exerciseId] as const,
+  exercisesWithProgress: (guideId: string) => ['exercises','with-progress', guideId] as const,
+  attemptsByExercise: (exerciseId: string) => ['attempts','by-exercise', exerciseId] as const,
+  feedbackHistory: (exerciseId: string, attemptId?: string) => attemptId ? ['feedback','history', exerciseId, attemptId] as const : ['feedback','history', exerciseId] as const,
+  llmStatus: () => ['llm','status'] as const,
+  progressGuides: () => ['progress','guides'] as const,
+  progressCompleted: () => ['progress','completed'] as const,
+  progressOverview: (withExercises?: boolean) => ['progress','overview', withExercises ? 'with-exercises' : 'basic'] as const,
+  userMe: () => ['users','me'] as const,
+  usersAll: () => ['users','all'] as const,
+  metricsOverviewItems: (filters: { userId?: string; exerciseId?: string; limit?: number }) => ['metrics','overview','items', filters] as const,
+};

@@ -1,0 +1,32 @@
+.tt-editor-scope {
+  /* Aísla resets y ajustes que antes eran globales */
+  &, * , *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  /* Tipografía y rendering específicos del editor */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-wrap: break-word;
+
+  /* Ejemplo: si necesitas transiciones internas, defínelas aquí en lugar de global */
+  --tt-transition-duration-default: 0.2s;
+  --tt-transition-easing-default: cubic-bezier(0.46, 0.03, 0.52, 0.96);
+
+  /* Limita cualquier regla de selección/cursor al editor */
+  ::selection {
+    background: var(--tt-selection-color, rgba(157,138,255,0.2));
+  }
+
+  /* Ejemplo para elementos ricos */
+  .ProseMirror {
+    outline: none;
+    min-height: 240px;
+  }
+
+  /* Personaliza listas, bloques, etc. únicamente dentro del editor */
+  .ProseMirror ul { list-style: disc; padding-left: 1.2rem; }
+  .ProseMirror ol { list-style: decimal; padding-left: 1.2rem; }
+  .ProseMirror code { font-family: ui-monospace, monospace; font-size: 0.85em; }
+}

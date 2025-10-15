@@ -1,0 +1,59 @@
+/* Aislar estilos exclusivamente al editor para no interferir con shadcn */
+.simple-editor-wrapper {
+  --tt-toolbar-height: 44px;
+  /* Enforce light mode variables: ignorar .dark parent */
+  --tt-theme-text: var(--tt-gray-light-900);
+  color: var(--tt-theme-text);
+  /* Fondo ligeramente teñido */
+  --editor-bg: hsl(210 40% 98% / 0.85);
+  background: var(--editor-bg);
+  border: 1px solid hsl(210 40% 96% / 0.8);
+  border-radius: 0.5rem;
+}
+
+.tiptap.ProseMirror {
+  font-family: "DM Sans", sans-serif;
+}
+
+.simple-editor-wrapper {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  position: relative;
+  overflow: hidden; /* evita que el toolbar o contenido se salga */
+  display: flex;
+  flex-direction: column;
+}
+
+.simple-editor-content {
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  overflow-x: hidden; /* no scroll horizontal global del editor */
+  overflow-y: auto;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor {
+  flex: 1 0 auto;
+  padding: 1rem 1rem 4rem;
+  max-width: 100%;
+  box-sizing: border-box;
+  background: transparent; /* usar wrapper */
+  overflow-wrap: break-word;
+}
+
+/* Toolbar horizontal scroll únicamente dentro del toolbar */
+.tt-editor-scope .tt-toolbar, .tt-editor-scope [data-toolbar] {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+@media screen and (max-width: 480px) {
+  .simple-editor-content .tiptap.ProseMirror.simple-editor {
+    padding: 0.75rem 0.75rem 3rem;
+  }
+}
