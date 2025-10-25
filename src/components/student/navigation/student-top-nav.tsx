@@ -1,14 +1,12 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSessionStore } from '@/shared/stores/session-store';
-import { useQueryClient } from '@tanstack/react-query';
+import { useUser } from '@/features/auth/hooks/use-user';
+
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/lib/utils';
-import { toast } from 'sonner';
+
 import { useState } from 'react';
-import { supabaseBrowser } from '@/shared/supabase/client';
-import { useRouter } from 'next/navigation';
 
 const NAV_ITEMS: { href: string; label: string; exact?: boolean; public?: boolean }[] = [
   { href: '/', label: 'Inicio', exact: true, public: true },
@@ -18,32 +16,18 @@ const NAV_ITEMS: { href: string; label: string; exact?: boolean; public?: boolea
 
 export function StudentTopNav() {
   const pathname = usePathname();
-  const user = useSessionStore(s => s.user);
-  const setLoggedOut = useSessionStore(s => s.logOut);
-  const qc = useQueryClient();
+  const { user, logout } = useUser();
   const [loggingOut, setLoggingOut] = useState(false);
-  const router = useRouter();
+
 
   async function handleLogout() {
     if (loggingOut) return;
     setLoggingOut(true);
-    try {
-      // 1. Cerrar sesión Supabase (revoca refresh token local)
-      await supabaseBrowser.auth.signOut();
-      // 2. Golpear endpoint para limpiar cookie auth_token (si se usa server-side)
-      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
-      // 3. Limpiar caches
-      qc.clear();
-      // 4. Marcar store como loggedOut
-      setLoggedOut();
-      // 5. Forzar refresh de la ruta para evitar hidratación con datos previos
-      try { router.refresh(); } catch {}
-      toast.success('Sesión cerrada');
-    } catch {
-      toast.error('No se pudo cerrar la sesión');
-    } finally {
-      setLoggingOut(false);
-    }
+    
+    // Usar la función logout del hook useUser
+    await logout();
+    
+    setLoggingOut(false);
   }
 
   const isActive = (href: string, exact?: boolean) => {

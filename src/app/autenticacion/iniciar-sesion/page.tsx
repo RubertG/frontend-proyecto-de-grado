@@ -1,5 +1,5 @@
 "use client";
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/shared/ui/form';
@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSessionStore } from '@/shared/stores/session-store';
-import { supabaseBrowser } from '@/shared/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 
 const schema = z.object({
 	email: z.string().email({ message: 'Email inválido' }),
@@ -17,26 +17,45 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function IniciarSesionPage() {
-	const router = useRouter();
 	const searchParams = useSearchParams();
-	const setSession = useSessionStore(s => s.setSession);
+	const router = useRouter();
+	const { clear } = useSessionStore();
+	const queryClient = useQueryClient();
 	const form = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { email: '', password: '' } });
 	const { handleSubmit, formState } = form;
 
 	async function onSubmit(values: FormValues) {
 		try {
-			const { data, error } = await supabaseBrowser.auth.signInWithPassword(values);
-			if (error || !data.session?.access_token) {
-				throw new Error(error?.message || 'Credenciales inválidas');
+			// Llamar directamente a nuestro API endpoint unificado
+			const loginResponse = await fetch('/api/auth/login', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(values)
+			});
+
+			if (!loginResponse.ok) {
+				const errorData = await loginResponse.json().catch(() => ({}));
+				throw new Error(errorData.message || 'Credenciales inválidas');
 			}
-			setSession(null); // trigger refetch /users/me
+
+			// Resetear el estado de logout y limpiar sesión previa
+			clear();
+			
+			// Invalidar todas las queries de autenticación para forzar refetch inmediato
+			await queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
+			
+			// Aguardar brevemente para que las queries se ejecuten
+			await new Promise(resolve => setTimeout(resolve, 100));
+			
 			toast.success('Inicio de sesión exitoso');
+			
+			// Usar navegación SPA en lugar de reload forzado
 			const redirect = searchParams.get('redirect') || '/';
 			router.push(redirect);
 		} catch (err: unknown) {
 			let message = 'Error al iniciar sesión';
 			if (err instanceof TypeError && /fetch/i.test(err.message)) {
-				message = 'No se pudo conectar con Supabase. Verifica tu red o variables .env';
+				message = 'No se pudo conectar con el servidor. Verifica tu red o configuración';
 			} else if (err && typeof err === 'object' && 'message' in err) {
 				message = String((err as { message?: unknown }).message || message);
 			}

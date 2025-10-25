@@ -24,14 +24,23 @@ function isPublic(pathname: string) {
 
 async function fetchUser(token: string) {
   const base = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000/api/v1'
+  
   try {
     const res = await fetch(base + '/users/me', {
       headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store'
     })
-    if (!res.ok) return null
-    return (await res.json()) as { id: string; role: string }
-  } catch {
+    
+    if (!res.ok) {
+      console.log(`[fetchUser] Failed: ${res.status}`)
+      return null
+    }
+    
+    const user = (await res.json()) as { id: string; role: string }
+    console.log(`[fetchUser] Success: role=${user.role}`)
+    return user
+  } catch (error) {
+    console.error(`[fetchUser] Error:`, error)
     return null
   }
 }
@@ -39,6 +48,11 @@ async function fetchUser(token: string) {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   const token = req.cookies.get(AUTH_COOKIE)?.value
+  
+  // Logging simplificado
+  if (isAdminRoute(pathname)) {
+    console.log(`[Middleware] Admin route: ${pathname}, token: ${token ? 'present' : 'missing'}`)
+  }
 
   // Rutas públicas accesibles siempre
   if (isPublic(pathname) && !isAdminRoute(pathname)) {
@@ -48,17 +62,25 @@ export async function middleware(req: NextRequest) {
   // Necesitamos token para cualquier ruta admin
   if (isAdminRoute(pathname)) {
     if (!token) {
+      console.log(`[Middleware] No token, redirecting to login`)
       return redirectToLogin(req)
     }
     const user = await fetchUser(token)
     if (!user) {
+      console.log(`[Middleware] Invalid token, redirecting to login`)
       return redirectToLogin(req)
     }
     if (user.role !== 'admin') {
-      // usuario normal intentando acceder a admin
+      console.log(`[Middleware] User role: ${user.role}, not admin, redirecting home`)
       return redirectToHome(req)
     }
-    return NextResponse.next()
+    console.log(`[Middleware] Admin access granted for user: ${user.id}`)
+    
+    // Agregar headers para debug
+    const response = NextResponse.next()
+    response.headers.set('X-Auth-Status', 'authenticated')
+    response.headers.set('X-User-Role', user.role)
+    return response
   }
 
   // (Futuro) otras rutas semi-protegidas podrían verificarse aquí

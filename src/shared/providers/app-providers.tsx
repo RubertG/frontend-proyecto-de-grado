@@ -1,56 +1,81 @@
-"use client";
-import React, { useEffect, useState } from 'react';
+'use client';
+import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { useSessionStore } from '@/shared/stores/session-store';
-import { ApiError } from '@/shared/api/http-client';
-import { useRouter } from 'next/navigation';
-import { apiFetch } from '@/shared/api/http-client';
-import { UserSchema } from '@/shared/api/schemas';
-import { Toaster } from '@/shared/ui/sonner';
+import { ThemeProvider } from 'next-themes';
+import { Toaster } from 'sonner';
+import { useUser } from '@/features/auth/hooks/use-user';
 
-/**
- * AppProviders
- * Componentes cliente que inicializan estado global (React Query, sesión).
- * Mantiene al layout como Server Component para aprovechar SSR.
- */
-export function AppProviders({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
-  const setSession = useSessionStore((s) => s.setSession);
-  const currentUser = useSessionStore(s => s.user);
-  const loggedOut = useSessionStore(s => s.loggedOut);
-  const router = useRouter();
+// Componente para manejar la autenticación automáticamente
+function AuthProvider({ children }: { children: React.ReactNode }) {
+  // Usar el hook useUser para sincronizar automáticamente el estado
+  const { user, isLoading, error, isAuthenticated } = useUser();
+  
+  // Log para debug durante desarrollo
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[AuthProvider] Auth state:', {
+      user: user?.email || 'not authenticated',
+      isLoading,
+      isAuthenticated,
+      hasError: !!error
+    });
+    
+    // Log cookies para debug
+    if (typeof window !== 'undefined') {
+      const authCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('auth_token='))
+        ?.split('=')[1];
+      console.log('[AuthProvider] Auth cookie present:', !!authCookie);
+    }
+  }
+  
+  return <>{children}</>;
+}
 
-  useEffect(() => {
-    if (loggedOut) return; // evitar refetch tras logout explícito
-    // Si ya tenemos usuario cargado no hacemos otra llamada
-    if (currentUser) return;
-    let cancelled = false;
-
-    // El middleware ya garantiza acceso; aquí sólo intentamos obtener /users/me si no está en store
-  // http-client resolverá token desde Supabase / cookie automáticamente
-
-    (async () => {
-      try {
-  const user = await apiFetch('/users/me', { schema: UserSchema });
-  if (!cancelled) setSession(user);
-      } catch (err) {
-        if (!cancelled) {
-          setSession(null);
-          if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-            try { router.push('/autenticacion/iniciar-sesion'); } catch {}
-          }
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 2 * 60 * 1000, // 2 minutos
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      retry: (failureCount, error: unknown) => {
+        // No reintentar si es error de autenticación
+        const errorWithStatus = error as { status?: number };
+        if (errorWithStatus?.status === 401 || errorWithStatus?.status === 403) {
+          return false;
         }
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [setSession, loggedOut, currentUser, router]);
+        return failureCount < 3;
+      },
+    },
+  },
+});
 
+// Debug: exponer queryClient globalmente en desarrollo
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  (window as unknown as Record<string, unknown>).__REACT_QUERY_CLIENT__ = queryClient;
+}
+
+interface AppProvidersProps {
+  children: React.ReactNode;
+}
+
+export function AppProviders({ children }: AppProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <Toaster richColors position="top-right" />
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ThemeProvider 
+        attribute="class" 
+        defaultTheme="light" 
+        enableSystem={false}
+        disableTransitionOnChange
+        storageKey="app-theme"
+      >
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+        <Toaster position="bottom-right" richColors />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

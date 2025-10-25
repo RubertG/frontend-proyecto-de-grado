@@ -1,5 +1,4 @@
 import { API_BASE, DEFAULT_HEADERS, withAuthHeader } from '@/shared/config/api';
-import { supabaseBrowser } from '@/shared/supabase/client';
 import { z } from 'zod';
 
 const AUTH_COOKIE = 'auth_token';
@@ -11,6 +10,45 @@ async function getServerCookieToken(): Promise<string | undefined> {
     const store = (typeof c?.then === 'function') ? await c : c;
     return store?.get?.(AUTH_COOKIE)?.value;
   } catch {
+    return undefined;
+  }
+}
+
+function getClientCookieToken(): string | undefined {
+  try {
+    if (typeof document === 'undefined') {
+      console.log('[getClientCookieToken] Running on server, skipping');
+      return undefined;
+    }
+    
+    const allCookies = document.cookie;
+    console.log('[getClientCookieToken] All cookies:', allCookies);
+    
+    if (!allCookies) {
+      console.log('[getClientCookieToken] No cookies found');
+      return undefined;
+    }
+    
+    // Buscar específicamente nuestra cookie
+    const cookies = allCookies.split('; ');
+    const authCookie = cookies.find(cookie => cookie.trim().startsWith(`${AUTH_COOKIE}=`));
+    
+    if (!authCookie) {
+      console.log('[getClientCookieToken] auth_token cookie not found in:', cookies);
+      return undefined;
+    }
+    
+    const cookieValue = authCookie.split('=')[1];
+    console.log('[getClientCookieToken] Found auth_token:', cookieValue ? `YES (${cookieValue.substring(0, 20)}...${cookieValue.substring(cookieValue.length - 10)})` : 'EMPTY');
+    
+    if (cookieValue && cookieValue.length < 10) {
+      console.warn('[getClientCookieToken] Token too short, likely invalid:', cookieValue);
+      return undefined;
+    }
+    
+    return cookieValue;
+  } catch (error) {
+    console.error('[getClientCookieToken] Error:', error);
     return undefined;
   }
 }
@@ -35,24 +73,36 @@ export async function apiFetch<T>(input: string, init: RequestInit & { schema?: 
   const { schema, token, ...rest } = init;
   let effectiveToken: string | undefined = token;
   const isServer = typeof window === 'undefined';
+  
+  console.log(`[apiFetch] ${input} - Server: ${isServer}, Token provided: ${!!token}`);
+  
   if (!effectiveToken) {
     if (isServer) {
       effectiveToken = await getServerCookieToken();
+      console.log(`[apiFetch] Server token from cookies: ${effectiveToken ? 'found' : 'not found'}`);
     } else {
-      const { data } = await supabaseBrowser.auth.getSession();
-      effectiveToken = data.session?.access_token;
+      // En el cliente, usar solo las cookies (no Supabase)
+      effectiveToken = getClientCookieToken();
+      console.log(`[apiFetch] Client token from cookies: ${effectiveToken ? 'found' : 'not found'}`);
     }
   }
+  
+  const headers = {
+    ...DEFAULT_HEADERS,
+    ...(rest.headers || {}),
+    ...withAuthHeader(effectiveToken)
+  };
+  
+  console.log(`[apiFetch] Headers with auth:`, effectiveToken ? `Token present (${effectiveToken.substring(0, 20)}...)` : 'No token');
+  
   const res = await fetch(`${API_BASE}${input}`, {
     ...rest,
-    headers: {
-      ...DEFAULT_HEADERS,
-      ...(rest.headers || {}),
-      ...withAuthHeader(effectiveToken)
-    }
+    headers
   });
+  
   const data = await parseJsonSafe(res);
   if (!res.ok) {
+    console.error(`[apiFetch] ${input} failed: ${res.status}`, data);
     throw new ApiError(`Request failed: ${res.status}`, res.status, data);
   }
   if (schema) {
