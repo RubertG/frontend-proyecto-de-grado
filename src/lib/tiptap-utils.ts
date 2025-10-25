@@ -289,7 +289,6 @@ export function isNodeTypeSelected(
 export const handleImageUpload = async (
   file: File,
   onProgress?: (event: { progress: number }) => void,
-  abortSignal?: AbortSignal
 ): Promise<string> => {
   // Validate file
   if (!file) {

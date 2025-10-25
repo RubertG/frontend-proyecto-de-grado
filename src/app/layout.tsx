@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from '@/shared/providers/app-providers';
-import Link from 'next/link';
 import { LayoutContainer } from '../components/layout/layout-container';
 
 // Layout ahora es un Server Component; la lógica cliente vive en AppProviders.

@@ -1,5 +1,5 @@
 import { apiFetch } from '@/shared/api/http-client';
-import { GuideSchema, GuideListSchema, type Guide } from '@/shared/api/schemas';
+import { GuideSchema, GuideListSchema } from '@/shared/api/schemas';
 
 // Endpoints según documentación:
 // GET /guides/ (lista)

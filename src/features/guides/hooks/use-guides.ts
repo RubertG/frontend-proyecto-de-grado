@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/shared/api/query-keys';
 import { fetchGuides, fetchGuide, createGuide, updateGuide, deleteGuide, type CreateGuideInput, type UpdateGuideInput } from '../api/guides-api';
-import { GuideListSchema, GuideSchema, type Guide } from '@/shared/api/schemas';
 
 export function useGuidesQuery() {
   return useQuery({ queryKey: queryKeys.guides(), queryFn: fetchGuides });
