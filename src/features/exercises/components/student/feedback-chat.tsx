@@ -4,9 +4,16 @@ import { Attempt } from '@/shared/api/schemas';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
-import { useFeedbackHistory, useChatMessageMutation } from '@/features/attempts/hooks/use-attempts';
+import { useChatMessageMutation } from '@/features/attempts/hooks/use-attempts';
 import { cn } from '@/shared/lib/utils';
 import { Textarea } from '@/shared/ui/textarea';
+
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
 
 interface FeedbackChatProps {
   attempt?: Attempt | null;
@@ -29,16 +36,15 @@ function Bubble({ role, children, variant = 'default' }: { role: 'user' | 'assis
 
 export function FeedbackChat({ attempt, isGenerating, onRetry }: FeedbackChatProps) {
   const exerciseId = attempt?.exercise_id;
-  const { data: history } = useFeedbackHistory(exerciseId || '', attempt?.id, !!exerciseId && !!attempt);
   const { mutateAsync: sendMessage, isPending: sending } = useChatMessageMutation(exerciseId || '', attempt?.id);
   const [message, setMessage] = React.useState('');
-  const [pendingUserMsgs, setPendingUserMsgs] = React.useState<string[]>([]);
+  const [chatMessages, setChatMessages] = React.useState<ChatMessage[]>([]);
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const formRef = React.useRef<HTMLFormElement | null>(null);
 
   React.useEffect(() => {
     if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
-  }, [history, isGenerating, sending]);
+  }, [chatMessages, isGenerating, sending]);
 
   if (!attempt) return null;
   const structuralFailed = attempt.structural_validation_passed === false && (attempt.structural_validation_errors?.length || 0) > 0;
@@ -49,16 +55,39 @@ export function FeedbackChat({ attempt, isGenerating, onRetry }: FeedbackChatPro
     e.preventDefault();
     const value = message.trim();
     if (!value) return;
+
+    // Agregar mensaje del usuario al chat local
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: value,
+      timestamp: new Date()
+    };
+    setChatMessages(prev => [...prev, userMessage]);
+    setMessage('');
+
     try {
-  setPendingUserMsgs(prev => [...prev, value]);
-  await sendMessage({ message: value });
-  // Al invalidar history se reemplaza el optimista; limpiar el primero
-  setPendingUserMsgs(prev => prev.slice(1));
-  // NO limpiamos message para que el usuario conserve lo escrito
+      // Enviar mensaje al backend y obtener respuesta
+      const response = await sendMessage({ message: value });
+      
+      // Agregar respuesta del asistente al chat local
+      const assistantMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant', 
+        content: response.content_md || 'Sin respuesta',
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, assistantMessage]);
     } catch {
       // TODO: añadir toast si se desea
-      // Revertir optimista último
-      setPendingUserMsgs(prev => prev.slice(0, -1));
+      // Agregar mensaje de error
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Error al enviar el mensaje. Inténtalo de nuevo.',
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, errorMessage]);
     }
   }
 
@@ -68,7 +97,7 @@ export function FeedbackChat({ attempt, isGenerating, onRetry }: FeedbackChatPro
         {hasSubmitted && (
           <Bubble role="user">
             <div className="whitespace-pre-wrap break-words font-medium">{attempt.submitted_answer}</div>
-            <div className="mt-2 text-[11px] opacity-70 font-normal">Tu intento {history?.some(h=>h.type==='attempt') ? '• histórico' : '• inicial'}</div>
+            <div className="mt-2 text-[11px] opacity-70 font-normal">Tu intento • inicial</div>
           </Bubble>
         )}
         {structuralFailed && (
@@ -105,22 +134,12 @@ export function FeedbackChat({ attempt, isGenerating, onRetry }: FeedbackChatPro
             >Reintentar generación</button>
           </Bubble>
         )}
-        {history?.filter(h => h.type !== 'attempt' && h.type !== 'feedback').map((h,i) => {
-          const role: 'user' | 'assistant' = h.type === 'question' ? 'user' : 'assistant';
-          if (!h.content_md) return null;
-          return (
-            <Bubble key={i} role={role}>
-              <article className={cn('prose prose-sm dark:prose-invert max-w-none', role==='user' && 'font-medium whitespace-pre-wrap break-words')}>
-                <ReactMarkdown rehypePlugins={[rehypeSanitize]} remarkPlugins={[remarkGfm]}>{h.content_md}</ReactMarkdown>
-              </article>
-              <div className="mt-2 text-[11px] opacity-60">{role === 'user' ? 'Tú' : 'Asistente'} • chat</div>
-            </Bubble>
-          );
-        })}
-        {pendingUserMsgs.map((m,i) => (
-          <Bubble key={`pending-${i}`} role="user">
-            <div className="whitespace-pre-wrap break-words font-medium">{m}</div>
-            <div className="mt-2 text-[11px] opacity-60">Tú • enviando…</div>
+        {chatMessages.map((msg) => (
+          <Bubble key={msg.id} role={msg.role}>
+            <article className={cn('prose prose-sm dark:prose-invert max-w-none', msg.role==='user' && 'font-medium whitespace-pre-wrap break-words')}>
+              <ReactMarkdown rehypePlugins={[rehypeSanitize]} remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+            </article>
+            <div className="mt-2 text-[11px] opacity-60">{msg.role === 'user' ? 'Tú' : 'Asistente'} • chat</div>
           </Bubble>
         ))}
         {sending && (
@@ -132,7 +151,7 @@ export function FeedbackChat({ attempt, isGenerating, onRetry }: FeedbackChatPro
           </Bubble>
         )}
       </div>
-      {!structuralFailed && (feedback || history?.some(h => h.type === 'feedback')) && (
+      {!structuralFailed && feedback && (
         <form ref={formRef} onSubmit={handleSend} className="flex items-center gap-2 pt-1 w-full">
           <div className="flex-1 w-full">
             <Textarea
