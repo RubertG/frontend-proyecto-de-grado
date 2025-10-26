@@ -27,7 +27,7 @@ export const ExerciseSchema = z.object({
   content_html: z.string().nullable().optional(),
   expected_answer: z.string().nullable().optional(),
   ai_context: z.string().nullable().optional(),
-  type: z.enum(['command','dockerfile','conceptual']),
+  type: z.enum(['command','dockerfile','conceptual','compose']),
   difficulty: z.string().nullable().optional(),
   enable_structural_validation: z.boolean(),
   enable_llm_feedback: z.boolean(),

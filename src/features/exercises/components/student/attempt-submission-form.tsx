@@ -90,7 +90,9 @@ export function AttemptSubmissionForm({ exercise, lastAttempt }: AttemptSubmissi
 
   const isBusy = isSubmitting || runtime.isSubmitting;
   const isGen = isGeneratingFeedback || runtime.isGeneratingFeedback;
-  const editorLanguage = exercise.type === 'dockerfile' ? 'dockerfile' : exercise.type === 'command' ? 'shell' : 'markdown';
+  const editorLanguage = exercise.type === 'dockerfile' ? 'dockerfile' : 
+                        exercise.type === 'command' ? 'shell' : 
+                        exercise.type === 'compose' ? 'yaml' : 'markdown';
 
   const editorApiRef = React.useRef<MonacoControlledEditorHandle | null>(null);
 

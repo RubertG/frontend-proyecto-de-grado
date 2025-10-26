@@ -20,7 +20,7 @@ const schema = z.object({
   content_html: z.string().optional(),
   expected_answer: z.string().min(1).optional(),
   ai_context: z.string().optional(),
-  type: z.enum(['command','dockerfile','conceptual']),
+  type: z.enum(['command','dockerfile','conceptual','compose']),
   difficulty: z.string().optional(),
   enable_structural_validation: z.boolean().default(true),
   enable_llm_feedback: z.boolean().default(true),
@@ -104,7 +104,9 @@ export default function EditExercisePage() {
                       <MonacoControlledEditor
                         value={field.value || ''}
                         onChange={field.onChange}
-                        language={form.getValues('type') === 'dockerfile' ? 'dockerfile' : (form.getValues('type') === 'command' ? 'shell' : 'plaintext')}
+                        language={form.getValues('type') === 'dockerfile' ? 'dockerfile' : 
+                                 form.getValues('type') === 'command' ? 'shell' : 
+                                 form.getValues('type') === 'compose' ? 'yaml' : 'plaintext'}
                       />
                     </div>
                   </FormControl>
@@ -134,6 +136,7 @@ export default function EditExercisePage() {
                 </FormItem>
               )}
             />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 max-w-4xl">
             <FormField
               control={form.control}
               name="type"
@@ -147,6 +150,7 @@ export default function EditExercisePage() {
                         <SelectItem value="command">command</SelectItem>
                         <SelectItem value="dockerfile">dockerfile</SelectItem>
                         <SelectItem value="conceptual">conceptual</SelectItem>
+                        <SelectItem value="compose">compose</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -154,7 +158,6 @@ export default function EditExercisePage() {
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 max-w-4xl">
               <FormField
                 control={form.control}
                 name="enable_structural_validation"

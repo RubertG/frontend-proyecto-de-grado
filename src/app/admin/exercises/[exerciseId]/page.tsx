@@ -75,13 +75,17 @@ export default async function ExerciseViewPage({ params }: { params: Promise<{ e
         {exercise.expected_answer && (
           <div className="space-y-2">
             <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Respuesta esperada</h2>
-            <ReadOnlyCode value={exercise.expected_answer} language={exercise.type === 'dockerfile' ? 'dockerfile' : (exercise.type === 'command' ? 'shell' : 'plaintext')} autoHeight maxAutoHeight={480} />
+            <ReadOnlyCode value={exercise.expected_answer} language={exercise.type === 'dockerfile' ? 'dockerfile' : 
+                                                                     exercise.type === 'command' ? 'shell' : 
+                                                                     exercise.type === 'compose' ? 'yaml' : 'plaintext'} autoHeight maxAutoHeight={480} />
           </div>
         )}
         {exercise.sample_solution && (
           <div className="space-y-2">
             <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Solución de muestra</h2>
-            <ReadOnlyCode value={exercise.sample_solution} language={exercise.type === 'dockerfile' ? 'dockerfile' : (exercise.type === 'command' ? 'shell' : 'plaintext')} autoHeight maxAutoHeight={9999} />
+            <ReadOnlyCode value={exercise.sample_solution} language={exercise.type === 'dockerfile' ? 'dockerfile' : 
+                                                                     exercise.type === 'command' ? 'shell' : 
+                                                                     exercise.type === 'compose' ? 'yaml' : 'plaintext'} autoHeight maxAutoHeight={9999} />
           </div>
         )}
       </div>

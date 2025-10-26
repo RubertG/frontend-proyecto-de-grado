@@ -52,8 +52,8 @@ export function ExerciseWorkArea({ exercise }: ExerciseWorkAreaProps) {
   const canShowFeedback = (() => {
     if (!lastAttempt) return false;
     if (exercise.type === 'conceptual') return true; // no hay validación estructural
-    // Para command/dockerfile sólo si validación pasó
-    if (exercise.type === 'command' || exercise.type === 'dockerfile') {
+    // Para command/dockerfile/compose sólo si validación pasó
+    if (exercise.type === 'command' || exercise.type === 'dockerfile' || exercise.type === 'compose') {
       return validation.status === 'passed';
     }
     return true;

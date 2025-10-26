@@ -7,7 +7,8 @@ import { Badge } from '@/shared/ui/badge';
 const TYPE_STYLE: Record<string,string> = {
   command: 'bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-200',
   dockerfile: 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-200',
-  conceptual: 'bg-violet-50 text-violet-700 dark:bg-violet-500/15 dark:text-violet-200'
+  conceptual: 'bg-violet-50 text-violet-700 dark:bg-violet-500/15 dark:text-violet-200',
+  compose: 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-200'
 };
 
 const DIFFICULTY_STYLE = {

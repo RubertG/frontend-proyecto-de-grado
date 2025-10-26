@@ -21,7 +21,7 @@ export interface CreateExerciseInput {
   content_html?: string;
   expected_answer: string;
   ai_context?: string | null;
-  type: 'command' | 'dockerfile' | 'conceptual';
+  type: 'command' | 'dockerfile' | 'conceptual' | 'compose';
   difficulty?: string | null;
   enable_structural_validation: boolean;
   enable_llm_feedback: boolean;
@@ -34,7 +34,7 @@ export interface UpdateExerciseInput {
   content_html?: string;
   expected_answer?: string;
   ai_context?: string | null;
-  type?: 'command' | 'dockerfile' | 'conceptual';
+  type?: 'command' | 'dockerfile' | 'conceptual' | 'compose';
   difficulty?: string | null;
   enable_structural_validation?: boolean;
   enable_llm_feedback?: boolean;
