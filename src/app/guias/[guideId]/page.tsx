@@ -23,9 +23,9 @@ export default async function GuideDetailPage({ params }: Props) {
     }
   }
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-10 max-w-5xl">
       <article className="prose dark:prose-invert max-w-none">
-        <h1 className="text-2xl font-bold mb-2">{guide.title}</h1>
+        <h1 className="text-2xl font-bold mb-6">{guide.title}</h1>
         {guide.topic && <p className="mt-0 text-sm text-muted-foreground">Tema: {guide.topic}</p>}
         {guide.content_html ? (
           <SafeHtml html={guide.content_html} className="rich-content prose prose-sm md:prose-base max-w-none" />
