@@ -21,16 +21,16 @@
   font-family: "DM Sans", system-ui, sans-serif;
   line-height: 1.6;
   /* Párrafos similares: margen superior en sucesivos */
-  p + p { margin-top: 20px; }
+  p + p { margin-top: 25px; }
 
   h1, h2, h3, h4 { position: relative; font-weight: 700; font-style: inherit; }
-  h1 { font-size: 1.5em; margin-top: 3em; }
-  h2 { font-size: 1.25em; margin-top: 2.5em; }
-  h3 { font-size: 1.125em; font-weight: 600; margin-top: 2em; }
-  h4 { font-size: 1em; font-weight: 600; margin-top: 2em; }
+  h1 { font-size: 1.5em; margin-top: 1.5em; }
+  h2 { font-size: 1.25em; margin-top: 2em; }
+  h3 { font-size: 1.125em; font-weight: 600; margin-top: 1.5em; }
+  h4 { font-size: 1em; font-weight: 600; margin-top: 1.5em; }
   h1:first-child, h2:first-child, h3:first-child, h4:first-child { margin-top: 0; }
 
-  ul, ol { padding-left: 1.5em; margin-top: 1.5em; margin-bottom: 1.5em; }
+  ul, ol { padding-left: 1.5em; margin-top: 1em; margin-bottom: 1em; }
   ul ul, ul ol, ol ul, ol ol { margin-top: 0; margin-bottom: 0; }
   ol { list-style: decimal; }
   ul { list-style: disc; }
@@ -78,6 +78,17 @@
     text-align: right;
     opacity: 0.35;
   }
+
+  a {
+    color: var(--tt-link-color, hsl(222, 90%, 55%));
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s cubic-bezier(0.46, 0.03, 0.52, 0.96);
+  }
+
+    a:hover {
+        color: var(--tt-link-hover-color, hsl(222, 90%, 45%));
+    }
 }
 
 /* Scrollbars ligeros */

@@ -62,7 +62,7 @@ export function ExerciseWorkArea({ exercise }: ExerciseWorkAreaProps) {
   return (
     <div className="flex flex-col gap-10 max-w-none">
       <header className="space-y-1">
-        <h1 className="text-xl font-semibold tracking-tight">{exercise.title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{exercise.title}</h1>
         <div className="flex flex-wrap items-center gap-2 pt-1">
           <TypeBadge type={exercise.type} />
           {exercise.difficulty && <DifficultyBadge difficulty={exercise.difficulty} />}
@@ -80,7 +80,7 @@ export function ExerciseWorkArea({ exercise }: ExerciseWorkAreaProps) {
   <section>
         {exercise.content_html ? (
           <article className="prose dark:prose-invert max-w-none prose-sm md:prose-base">
-            <SafeHtml html={exercise.content_html} />
+            <SafeHtml html={exercise.content_html} className="rich-content" />
           </article>
         ) : (
           <p className="text-sm text-muted-foreground">Este ejercicio aún no tiene contenido.</p>
