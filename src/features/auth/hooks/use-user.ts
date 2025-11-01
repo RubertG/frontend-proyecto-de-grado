@@ -36,18 +36,13 @@ export function useUser() {
         throw err;
       }
     },
-    initialData: userInStore,
+    // initialData: userInStore,
     staleTime: 2 * 60 * 1000, // 2 minutos
     refetchOnWindowFocus: true, // Refrescar cuando se enfoca la ventana
     refetchOnReconnect: true,   // Refrescar cuando se reconecta
     retry: false,
     enabled: !loggedOut, // No hacer query si el usuario hizo logout
   });
-
-  // Funciones de utilidad
-  const isAuthenticated = !!query.data && !query.error;
-  const isAdmin = query.data?.role === 'admin';
-  const isLoading = query.isLoading && !loggedOut;
 
   const router = useRouter();
 
@@ -75,9 +70,9 @@ export function useUser() {
     user: query.data || userInStore,
     
     // Estados
-    isLoading,
-    isAuthenticated,
-    isAdmin,
+    isLoading: query.isLoading && !loggedOut,
+    isAuthenticated: !!query.data && !query.error,
+    isAdmin: query.data?.role === 'admin',
     error: query.error,
     
     // Acciones

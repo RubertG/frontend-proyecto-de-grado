@@ -5,31 +5,42 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
 import { useUser } from '@/features/auth/hooks/use-user';
+import { usePathname, useRouter } from 'next/navigation';
+
+const ADMIN_PREFIX = '/admin';
+
+function isAdminRoute(pathname: string) {
+  return pathname === ADMIN_PREFIX || pathname.startsWith(ADMIN_PREFIX + '/')
+}
 
 // Componente para manejar la autenticación automáticamente
 function AuthProvider({ children }: { children: React.ReactNode }) {
-  // Usar el hook useUser para sincronizar automáticamente el estado
-  const { user, isLoading, error, isAuthenticated } = useUser();
-  
-  // Log para debug durante desarrollo
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[AuthProvider] Auth state:', {
-      user: user?.email || 'not authenticated',
-      isLoading,
-      isAuthenticated,
-      hasError: !!error
-    });
-    
-    // Log cookies para debug
-    if (typeof window !== 'undefined') {
-      const authCookie = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth_token='))
-        ?.split('=')[1];
-      console.log('[AuthProvider] Auth cookie present:', !!authCookie);
+  const { isLoading, isAuthenticated, isAdmin } = useUser();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (isLoading) return;
+
+    const adminRoute = isAdminRoute(pathname);
+
+    if (!isAuthenticated && adminRoute) {
+      router.push('/autenticacion/iniciar-sesion');
+    } else if (isAuthenticated && !isAdmin && adminRoute) {
+      router.push('/');
     }
+  }, [isLoading, isAuthenticated, isAdmin, pathname, router]);
+
+  if (isLoading) {
+    return <div>Cargando...</div>;
   }
-  
+
+  // Opcional: puedes bloquear el render mientras se redirige
+  const adminRoute = isAdminRoute(pathname);
+  if ((!isAuthenticated && adminRoute) || (isAuthenticated && !isAdmin && adminRoute)) {
+    return null;
+  }
+
   return <>{children}</>;
 }
 

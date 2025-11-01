@@ -4,7 +4,7 @@ import { useExerciseRuntimeStore } from '@/shared/stores/exercise-runtime-store'
 import { AlertTriangle } from 'lucide-react';
 
 interface StructuralValidationPanelProps {
-  type: 'command' | 'dockerfile' | 'conceptual';
+  type: 'command' | 'dockerfile' | 'conceptual' | 'compose';
 }
 
 export function StructuralValidationPanel({ type }: StructuralValidationPanelProps) {

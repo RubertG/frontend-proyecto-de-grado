@@ -8,6 +8,8 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useSessionStore } from '@/shared/stores/session-store';
+import { useQueryClient } from '@tanstack/react-query';
 
 const schema = z.object({
 	name: z.string().min(2, { message: 'Nombre muy corto' }),
@@ -18,6 +20,8 @@ type FormValues = z.infer<typeof schema>;
 
 export default function RegistroPage() {
 	const router = useRouter();
+    const { clear } = useSessionStore();
+    const queryClient = useQueryClient();
 	const form = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { name: '', email: '', password: '' } });
 	const { handleSubmit, formState } = form;
 
@@ -25,13 +29,31 @@ export default function RegistroPage() {
 		try {
 			const supabase = supabaseClient();
 			const { data, error } = await supabase.auth.signUp({ email: values.email, password: values.password, options: { data: { name: values.name } } });
+            console.log(data)
 			if (error) throw error;
-			if (data.session) {
+			if (data.user) {
 				toast.success('Registro exitoso');
+
+                const loginResponse = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(values)
+                });
+
+                if (!loginResponse.ok) {
+                    const errorData = await loginResponse.json().catch(() => ({}));
+                    throw new Error(errorData.message || 'Credenciales inválidas');
+                }
+
+                // Resetear el estado de logout y limpiar sesión previa
+                clear();
+                // Invalidar todas las queries de autenticación para forzar refetch inmediato
+                await queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
+			
+                // Aguardar brevemente para que las queries se ejecuten
+                await new Promise(resolve => setTimeout(resolve, 100));
+
 				router.push('/');
-			} else {
-				toast.success('Verifica tu correo para activar la cuenta');
-				router.push('/autenticacion/iniciar-sesion');
 			}
 		} catch (err: unknown) {
 			let message = 'Error al registrar';
