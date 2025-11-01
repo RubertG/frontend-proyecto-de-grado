@@ -70,6 +70,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/dompurify": "^3.2.0",
+    "@types/lodash.throttle": "^4.1.9",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dompurify": "^3.2.7",
