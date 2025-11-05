@@ -32,7 +32,7 @@ export function AttemptSubmissionForm({ exercise, lastAttempt }: AttemptSubmissi
   runtime.setSubmitting(true);
   runtime.resetValidation();
   const attemptRes = await createAttempt({ exercise_id: exercise.id, submitted_answer: answer, completed: false });
-  const attempt = attemptRes as Attempt; // asegurar salida post-transform
+  const attempt = attemptRes as Attempt;
   runtime.setAttempt(attempt.id);
   runtime.setAttemptSnapshot(attempt);
       // Determinar si pasó validación estructural según campos del attempt
