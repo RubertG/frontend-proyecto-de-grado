@@ -10,6 +10,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList, CommandEmpty } from '@/shared/ui/command';
 import { ChevronsUpDown, Loader2 } from 'lucide-react';
+import { Loader } from '@/shared/ui/Loader';
 
 interface AttemptsTableProps { exerciseId: string; }
 
@@ -142,7 +143,7 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
           </TableHeader>
           <TableBody>
             {isLoading && (
-              <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-6"><Loader2 className="h-4 w-4 animate-spin inline-block mr-2" />Cargando...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-6"><Loader /></TableCell></TableRow>
             )}
             {isError && !isLoading && (
               <TableRow><TableCell colSpan={5} className="text-center text-destructive py-6 text-sm">Error cargando intentos</TableCell></TableRow>
@@ -155,8 +156,8 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
               const active = selectedId === a.id;
               return (
                 <TableRow key={a.id} data-state={active? 'selected': undefined} className={active ? 'bg-accent/40' : undefined}>
-                  <TableCell className="font-mono text-sm truncate" title={a.id}>{a.id.slice(0,8)}…</TableCell>
-                  <TableCell className="text-sm truncate" title={a.user?.email || a.user?.id}>{a.user?.name || a.user?.email || '—'} {a.user?.id && <span className="font-mono text-sm opacity-60">({a.user.id.slice(0,6)}…)</span>}</TableCell>
+                  <TableCell className="font-mono text-xs truncate" title={a.id}>{a.id}</TableCell>
+                  <TableCell className="text-sm truncate" title={a.user?.email || a.user?.id}>{a.user?.name || a.user?.email || '—'} {a.user?.id && <p className="font-mono text-xs opacity-60">{a.user.id}</p>}</TableCell>
                   <TableCell>
                     {struct == null ? (
                       <Badge variant="outline">No evaluado</Badge>

@@ -75,10 +75,10 @@ export function ExercisesAttemptsTable({ exercises }: Props) {
                 <TableCell>
                   <div className="flex flex-col gap-0.5">
                     <span className="font-medium text-sm leading-tight">{ex.title}</span>
-                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{ex.id.slice(0, 8)}…</span>
+                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{ex.id}</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-[11px] font-mono truncate max-w-[140px]" title={ex.guide_id}>{ex.guide_id.slice(0,8)}…</TableCell>
+                <TableCell className="text-[11px] font-mono truncate max-w-[140px]" title={ex.guide_id}>{ex.guide_id}</TableCell>
                 <TableCell className="text-sm">{ex.type}</TableCell>
                 <TableCell className="text-sm">{ex.difficulty || '-'}</TableCell>
                 <TableCell className="text-sm">{ex.enable_structural_validation ? 'Sí':'No'}</TableCell>

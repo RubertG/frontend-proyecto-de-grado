@@ -8,6 +8,7 @@ import { ApiError } from '@/shared/api/http-client';
 import { useExerciseRuntimeStore } from '@/shared/stores/exercise-runtime-store';
 import { toast } from 'sonner';
 import { Loader2, Send, Sparkles } from 'lucide-react';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/shared/ui/tooltip';
 import type { Exercise, Attempt } from '@/shared/api/schemas';
 
 interface AttemptSubmissionFormProps {
@@ -42,12 +43,11 @@ export function AttemptSubmissionForm({ exercise, lastAttempt }: AttemptSubmissi
       } else {
         runtime.resetValidation();
       }
-      toast.success('Intento enviado');
       if (exercise.enable_llm_feedback) {
         runtime.setGenerating(true);
         try {
           await genFeedback({ exercise_id: exercise.id, submitted_answer: answer });
-          toast.message('Feedback generado');
+        //   toast.message('Feedback generado');
         } catch {
           toast.error('Error generando feedback');
         } finally {
@@ -90,6 +90,8 @@ export function AttemptSubmissionForm({ exercise, lastAttempt }: AttemptSubmissi
 
   const isBusy = isSubmitting || runtime.isSubmitting;
   const isGen = isGeneratingFeedback || runtime.isGeneratingFeedback;
+  // Bloquear envío si hay un intento/conversación en curso (hasta que el usuario presione "Otro intento")
+  const isLockedByConversation = !!runtime.attemptId;
   const editorLanguage = exercise.type === 'dockerfile' ? 'dockerfile' : 
                         exercise.type === 'command' ? 'shell' : 
                         exercise.type === 'compose' ? 'yaml' : 'markdown';
@@ -126,10 +128,26 @@ export function AttemptSubmissionForm({ exercise, lastAttempt }: AttemptSubmissi
           )}
         </div>
   <div className="flex items-center justify-start gap-2 w-full max-w-6xl">
-          <Button type="submit" disabled={isBusy || isGen} className="relative font-semibold shadow">
-            {isBusy && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
-            <Send className="h-4 w-4 mr-1" /> {isBusy ? 'Enviando...' : 'Enviar intento'}
-          </Button>
+          {isLockedByConversation ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex">
+                  <Button type="submit" disabled className="relative font-semibold shadow">
+                    {isBusy && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+                    <Send className="h-4 w-4 mr-1" /> {isBusy ? 'Enviando...' : 'Enviar intento'}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                Termina la conversación actual o pulsa &quot;Otro intento&quot; para continuar.
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button type="submit" disabled={isBusy || isGen} className="relative font-semibold shadow">
+              {isBusy && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+              <Send className="h-4 w-4 mr-1" /> {isBusy ? 'Enviando...' : 'Enviar intento'}
+            </Button>
+          )}
           {exercise.enable_llm_feedback && lastAttempt && !lastAttempt.llm_feedback && (
             <Button type="button" variant="outline" onClick={handleRetryFeedback} disabled={isGen || isBusy} className="font-medium">
               {isGen && <Loader2 className="h-4 w-4 animate-spin mr-1" />}

@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm';
 import { useChatMessageMutation } from '@/features/attempts/hooks/use-attempts';
 import { cn } from '@/shared/lib/utils';
 import { Textarea } from '@/shared/ui/textarea';
+import { Button } from '@/shared/ui/button';
 
 interface ChatMessage {
   id: string;
@@ -152,25 +153,25 @@ export function FeedbackChat({ attempt, isGenerating, onRetry }: FeedbackChatPro
         )}
       </div>
       {!structuralFailed && feedback && (
-        <form ref={formRef} onSubmit={handleSend} className="flex items-center gap-2 pt-1 w-full">
+        <form ref={formRef} onSubmit={handleSend} className="flex items-end gap-2 pt-1 w-full">
           <div className="flex-1 w-full">
             <Textarea
               value={message}
               onChange={e => setMessage(e.target.value)}
               placeholder="Haz una pregunta de seguimiento..."
-              className="!max-w-none resize-none text-sm min-h-[38px] max-h-40 leading-relaxed"
+              className="max-w-none! resize-none text-sm min-h-[38px] max-h-40 leading-relaxed"
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); formRef.current?.requestSubmit(); } }}
               disabled={sending || isGenerating}
               rows={1}
             />
           </div>
-          <button
+          <Button
             type="submit"
             disabled={sending || isGenerating || !message.trim()}
             className="inline-flex items-center rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium shadow disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90"
           >
             {sending ? 'Enviando…' : 'Enviar'}
-          </button>
+          </Button>
         </form>
       )}
     </div>

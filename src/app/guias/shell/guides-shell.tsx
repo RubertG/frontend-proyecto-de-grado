@@ -81,10 +81,7 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
         <div className="flex flex-1 min-h-0">
           <Sidebar variant="sidebar" collapsible="icon">
             <SidebarHeader>
-              <div className="flex items-center gap-2 px-2 py-1.5">
-                <SidebarTrigger />
-                <span className="font-semibold text-sm group-data-[collapsible=icon]:hidden">Guías</span>
-              </div>
+                <SidebarTrigger className='ml-0.5' />
             </SidebarHeader>
             <SidebarContent>
               <SidebarGroup>
@@ -99,9 +96,8 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
             <SidebarFooter className="p-2 border-t">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-start gap-2 px-2 text-sm">
+                  <Button variant="ghost" className="w-full justify-start gap-2 px-2! text-sm">
                     <UserIcon className="h-4 w-4" />
-                    {/** Usar 'Usuario' como fallback estable para evitar mismatch de SSR -> CSR; span con suppressHydrationWarning para permitir actualización tras montar */}
                     <span className="truncate group-data-[collapsible=icon]:hidden" suppressHydrationWarning>{user?.name || user?.email || 'Usuario'}</span>
                   </Button>
                 </DropdownMenuTrigger>

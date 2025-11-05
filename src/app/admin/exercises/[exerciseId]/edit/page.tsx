@@ -14,6 +14,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/shared/ui/form';
 import { toast } from 'sonner';
+import { Loader } from '@/shared/ui/Loader';
 
 const schema = z.object({
   title: z.string().min(1),
@@ -78,7 +79,7 @@ export default function EditExercisePage() {
   return (
   <main className="space-y-6">
       <h1 className="text-xl font-semibold">Editar Ejercicio</h1>
-      {isLoading && <p>Cargando...</p>}
+      {isLoading && <div><Loader /></div>}
       {!isLoading && (
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

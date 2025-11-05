@@ -15,7 +15,7 @@ export function LayoutContainer({ children }: { children: React.ReactNode }) {
       <StudentTopNav />
       <div className="pt-0">{children}</div>
         <footer className="w-full border-t pt-5 mt-10 text-xs text-center text-muted-foreground">
-            Plataforma Educativa construida por Rubert Gonzalez · <Link href="/autenticacion/iniciar-sesion" className="underline hover:no-underline">Iniciar sesión</Link>
+            Plataforma Educativa construida por <Link href="https://github.com/RubertG" target='_blank' className="underline hover:no-underline">Rubert Gonzalez</Link>
         </footer>
     </div>
   );

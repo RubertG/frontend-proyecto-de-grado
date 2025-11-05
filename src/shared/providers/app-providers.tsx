@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
 import { useUser } from '@/features/auth/hooks/use-user';
 import { usePathname, useRouter } from 'next/navigation';
+import { Loader } from '../ui/Loader';
 
 const ADMIN_PREFIX = '/admin';
 
@@ -32,7 +33,11 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [isLoading, isAuthenticated, isAdmin, pathname, router]);
 
   if (isLoading) {
-    return <div>Cargando...</div>;
+    return (
+      <div className='h-screen w-full grid place-content-center'>
+        <Loader />
+      </div>
+    );
   }
 
   // Opcional: puedes bloquear el render mientras se redirige

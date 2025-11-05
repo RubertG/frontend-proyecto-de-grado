@@ -20,7 +20,24 @@ export function useUser() {
     queryFn: async () => {
       try {
         console.log('[useUser] Starting /users/me request');
-        const user = await apiFetch('/users/me', { schema: UserSchema });
+        // Pedimos swallowErrors para que la llamada no rompa el flujo en 401/403
+        const result = await apiFetch('/users/me', { schema: UserSchema, swallowErrors: true });
+
+        // Si apiFetch devolvió un objeto diagnóstico (swallowErrors), manejarlo
+        if (result && typeof result === 'object' && (result as unknown as { __apiError?: boolean }).__apiError) {
+          const diag = result as unknown as { __apiError: true; status?: number; body?: unknown };
+          const status = diag.status;
+          console.warn('[useUser] /users/me returned api error shape, status=', status);
+          if (status === 401 || status === 403) {
+            console.log('[useUser] Auth failed, clearing session');
+            clear();
+            return null;
+          }
+          // Para otros status, lanzar para que los handlers superiores lo gestionen
+          throw new ApiError('Request failed', status ?? 500, diag.body);
+        }
+
+        const user = result as unknown as User;
         console.log('[useUser] /users/me success:', user?.email);
         // Sincronizar automáticamente con el store
         setSession(user);

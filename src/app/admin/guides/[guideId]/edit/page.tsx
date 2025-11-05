@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useGuideQuery, useUpdateGuideMutation } from '@/features/guides/hooks/use-guides';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { Loader } from '@/shared/ui/Loader';
 
 const schema = z.object({
   title: z.string().min(1),
@@ -57,7 +58,7 @@ export default function EditGuidePage() {
   return (
     <div className="w-full max-w-5xl space-y-6">
       <h1 className="text-xl font-semibold tracking-tight">Editar Guía</h1>
-      {isLoading && <p>Cargando...</p>}
+      {isLoading && <div><Loader /></div>}
       {!isLoading && (
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

@@ -8,7 +8,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/shared/api/query-keys'
 import type { Guide } from '@/shared/api/schemas'
 import { useRouter } from 'next/navigation'
-import { LogOut, User as UserIcon } from 'lucide-react'
+import { HomeIcon, LogOut, User as UserIcon } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
@@ -94,10 +94,7 @@ export function SidebarShell({ children }: { children: React.ReactNode }) {
         <Sidebar collapsible="icon" variant="sidebar">
           <SidebarContent>
           <SidebarHeader>
-            <div className="flex items-center gap-2 px-2">
-              <SidebarTrigger />
-              <span className="font-semibold text-sm">Admin</span>
-            </div>
+              <SidebarTrigger className='ml-0.5' />
           </SidebarHeader>
             <SidebarGroup>
               <SidebarGroupLabel>Navegación</SidebarGroupLabel>
@@ -124,7 +121,7 @@ export function SidebarShell({ children }: { children: React.ReactNode }) {
           <SidebarFooter className="p-2 border-t">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-full justify-start gap-2 px-2 text-sm">
+                <Button variant="ghost" className="w-full justify-start gap-2 px-2! text-sm">
                   <UserIcon className="h-4 w-4" />
                   <span className="truncate">{user?.name || user?.email || 'Usuario'}</span>
                 </Button>
@@ -137,10 +134,19 @@ export function SidebarShell({ children }: { children: React.ReactNode }) {
                     logOut()
                     try { router.push('/autenticacion/iniciar-sesion') } catch {}
                   }}
-                  className="gap-2 cursor-pointer"
+                  className="gap-2 cursor-pointer hover:bg-muted transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Cerrar sesión</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                    className="gap-2 cursor-pointer hover:bg-muted transition-colors" 
+                    onClick={() => {
+                      try { router.push('/') } catch {}
+                    }}
+                >
+                    <HomeIcon className="h-4 w-4" />
+                    <span>Ir al sitio</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
