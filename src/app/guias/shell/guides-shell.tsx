@@ -139,9 +139,9 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
             {/* Breadcrumb con más respiro respecto a la top nav y el contenido */}
             <header className="flex items-center gap-2 px-4 md:px-6 py-2 mt-1 mb-4 md:mb-5">
               <SidebarTrigger className="md:hidden" />
-              <div className="flex-1 overflow-hidden">
+              <div className="flex-1 overflow-x-auto">
                 <Breadcrumb>
-                  <BreadcrumbList>
+                  <BreadcrumbList className="flex-nowrap whitespace-nowrap">
                     {breadcrumb.map((b, i) => {
                       const isLast = i === breadcrumb.length - 1;
                       return (
