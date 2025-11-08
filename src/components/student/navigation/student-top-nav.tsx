@@ -76,7 +76,7 @@ export function StudentTopNav() {
   // Evitar portal durante SSR; marcar montado en cliente
   useEffect(() => { setMounted(true); }, []);
 
-  // Controlar renderizado y animaciones de entrada/salida
+  // Controlar renderizado y animaciones de entrada/salida (array de dependencias estable)
   useEffect(() => {
     if (mobileOpen) {
       setRenderMobile(true);
@@ -84,13 +84,15 @@ export function StudentTopNav() {
       setEntering(false);
       const id = setTimeout(() => setEntering(true), 20); // siguiente frame para transiciones
       return () => clearTimeout(id);
-    } else if (renderMobile) {
+    }
+    // Animación de cierre únicamente si el panel aún está renderizado
+    if (!mobileOpen && renderMobile) {
       setEntering(false);
       setExiting(true);
       const id = setTimeout(() => { setRenderMobile(false); setExiting(false); }, 250);
       return () => clearTimeout(id);
     }
-  }, [mobileOpen]);
+  }, [mobileOpen, renderMobile]);
 
   return (
     <header className="w-full border-b bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">
