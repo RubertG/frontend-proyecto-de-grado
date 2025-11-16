@@ -19,9 +19,10 @@ interface ExerciseAllLite {
   enable_structural_validation: boolean;
   enable_llm_feedback: boolean;
   is_active?: boolean;
+  created_at?: string;
 }
 
-type SortField = 'title' | 'type' | 'difficulty' | 'guide_id' | 'is_active' | 'struct' | 'llm';
+type SortField = 'title' | 'type' | 'difficulty' | 'guide_id' | 'is_active' | 'struct' | 'llm' | 'created_at';
 
 export function ExercisesAllDataTable() {
   const { data, isLoading, isError, refetch } = useExercisesAllQuery();
@@ -64,6 +65,11 @@ export function ExercisesAllDataTable() {
           const av = a.enable_llm_feedback ? 1 : 0;
           const bv = b.enable_llm_feedback ? 1 : 0;
           return (av - bv) * dir;
+        }
+        case 'created_at': {
+          const ad = a.created_at || '';
+          const bd = b.created_at || '';
+          return ad.localeCompare(bd) * dir;
         }
         case 'title': 
         default: return a.title.localeCompare(b.title) * dir;
@@ -141,8 +147,8 @@ export function ExercisesAllDataTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              {['title','guide_id','type','difficulty','struct','llm','is_active','actions'].map(col => {
-                const headerMap: Record<string,string> = { title:'Título', guide_id:'Guía', type:'Tipo', difficulty:'Dificultad', struct:'Validación estructural', llm:'Feedback LLM', is_active:'Estado', actions:'Acciones' };
+              {['title','guide_id','type','difficulty','created_at','struct','llm','is_active','actions'].map(col => {
+                const headerMap: Record<string,string> = { title:'Título', guide_id:'Guía', type:'Tipo', difficulty:'Dificultad', created_at:'Fecha de creación', struct:'Validación estructural', llm:'Feedback LLM', is_active:'Estado', actions:'Acciones' };
                 const sortable = !['actions'].includes(col);
                 const isActive = sortField === col;
                 const icon = !sortable ? null : isActive ? (sortDir === 'asc' ? <ArrowUp className="size-3"/> : <ArrowDown className="size-3"/>) : <ArrowUpDown className="size-3 opacity-50"/>;
@@ -168,7 +174,7 @@ export function ExercisesAllDataTable() {
           <TableBody>
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-sm text-muted-foreground h-24">Sin ejercicios</TableCell>
+                <TableCell colSpan={9} className="text-center text-sm text-muted-foreground h-24">Sin ejercicios</TableCell>
               </TableRow>
             )}
             {filtered.map(e => (
@@ -177,6 +183,15 @@ export function ExercisesAllDataTable() {
                 <TableCell className="font-mono text-xs">{e.guide_id.slice(0,8)}</TableCell>
                 <TableCell>{e.type}</TableCell>
                 <TableCell>{e.difficulty || <span className="text-muted-foreground text-xs">—</span>}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">
+                  {e.created_at ? new Date(e.created_at).toLocaleDateString('es-ES', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : <span className="text-muted-foreground">—</span>}
+                </TableCell>
                 <TableCell className="w-[120px]">
                   {e.enable_structural_validation ? (
                     <Badge className="text-xs">Activo</Badge>

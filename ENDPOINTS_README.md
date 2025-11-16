@@ -62,7 +62,8 @@ Response (201):
   "structural_validation_errors": [],
   "structural_validation_warnings": [],
   "llm_feedback": null,
-  "completed": false
+  "completed": false,
+  "created_at": "2025-11-15T10:00:00Z"
 }
 ```
 
@@ -84,7 +85,8 @@ Reglas de asignación de `completed` al crear un intento:
     "structural_validation_errors": [],
     "structural_validation_warnings": [],
     "llm_feedback": "## Fortalezas...",
-    "completed": false
+    "completed": false,
+    "created_at": "2025-11-15T10:00:00Z"
   }
 ]
 ```
@@ -225,8 +227,8 @@ Notas:
 | Método | Ruta | Auth | Rol | Descripción |
 |--------|------|------|-----|-------------|
 | POST | /feedback/attempt | Sí | student/admin | Generar feedback (valida estructura antes de LLM) |
-| POST | /feedback/chat | Sí | student/admin | Conversación contextual |
-| GET | /feedback/history?exercise_id=... | Sí | student/admin | Historial vectorial |
+| POST | /feedback/chat | Sí | student/admin | Conversación contextual **por intento** |
+| GET | /feedback/history | Sí | student/admin | Historial vectorial (filtrable por intento) |
 
 ### POST /feedback/attempt
 Request body:
@@ -257,7 +259,19 @@ Response (200):
 }
 ```
 
-### POST /feedback/chat
+### POST /feedback/chat ⚠️ CAMBIO IMPORTANTE
+**BREAKING CHANGE:** Ahora requiere `attempt_id` para aislar conversaciones por intento.
+
+Request body:
+```json
+{
+  "exercise_id": "9a3f6d40-3fb2-45d4-9c7d-76c9ea5f1d11",
+  "attempt_id": "3d1f0f7a-5e3d-4d8a-a7a4-9d1e6b2c8f90",
+  "message": "¿Cómo puedo reducir el tamaño de la imagen?"
+}
+```
+
+Response (200):
 ```json
 {
   "content_md": "Puedes mejorar el Dockerfile usando multi-stage...",
@@ -271,23 +285,131 @@ Response (200):
 }
 ```
 
+**Validaciones:**
+- El `attempt_id` debe existir
+- El `attempt_id` debe pertenecer al usuario autenticado
+- El `attempt_id` debe corresponder al `exercise_id`
+
+**Errores posibles:**
+- `404`: Intento no encontrado o no autorizado
+- `400`: El intento no corresponde al ejercicio
+
 ### GET /feedback/history
+**Parámetros query:**
+- `exercise_id` (requerido): UUID del ejercicio
+- `attempt_id` (opcional): UUID del intento para filtrar
+
+**Ejemplos:**
+
+Historial de todos los intentos del ejercicio:
+```
+GET /feedback/history?exercise_id=9a3f6d40-3fb2-45d4-9c7d-76c9ea5f1d11
+```
+
+Historial solo del intento específico:
+```
+GET /feedback/history?exercise_id=9a3f6d40-3fb2-45d4-9c7d-76c9ea5f1d11&attempt_id=3d1f0f7a-5e3d-4d8a-a7a4-9d1e6b2c8f90
+```
+
+Response (200):
 ```json
 [
-  {"type": "attempt", "content_md": "FROM python:3.12-slim"},
-  {"type": "feedback", "content_md": "## Fortalezas..."},
-  {"type": "question", "content_md": "¿Cómo reducir tamaño?"},
-  {"type": "answer", "content_md": "Puedes usar multi-stage..."}
+  {"type": "attempt", "content_md": "FROM python:3.12-slim", "created_at": "2025-11-15T10:00:00Z"},
+  {"type": "feedback", "content_md": "## Fortalezas...", "created_at": "2025-11-15T10:00:05Z"},
+  {"type": "question", "content_md": "¿Cómo reducir tamaño?", "created_at": "2025-11-15T10:01:00Z"},
+  {"type": "answer", "content_md": "Puedes usar multi-stage...", "created_at": "2025-11-15T10:01:02Z"}
 ]
 ```
 
 ### 5.1 Notas de Uso
 - `attempt` requiere `{ "exercise_id": str, "submitted_answer": str }`.
-- `chat` requiere `{ "exercise_id": str, "message": str }`.
+- **`chat` requiere `{ "exercise_id": str, "attempt_id": str, "message": str }`** ← CAMBIO
 - Si falla validación estructural (command/dockerfile) se aborta sin consumir LLM.
 - Estructura típica del `content_md` de feedback: encabezados Markdown como "## Fortalezas", "## Oportunidades de mejora", "## Sugerencias prácticas" (según aplique). Puede omitir secciones vacías. No incluye pregunta de seguimiento final; el cierre es conciso y motivador (sin signos de interrogación para forzar respuesta).
+- **Aislamiento por intento:** Cada conversación de chat está asociada a un intento específico. No se mezcla contexto de intentos anteriores.
 
-### 5.2 Errores de Validación Estructural (422)
+### 5.2 Cambios en el Sistema de Chat (Noviembre 2025)
+
+#### Problema Resuelto
+Anteriormente el chat mezclaba contexto de **todos los intentos** del mismo ejercicio, causando:
+- Respuestas confusas con información de intentos anteriores
+- Pérdida de coherencia en la conversación
+- Mensajes repetitivos sin contexto relevante
+
+#### Solución Implementada
+- **Aislamiento estricto por intento:** Cada `attempt_id` tiene su propia conversación independiente
+- **Validación de pertenencia:** El sistema verifica que el intento pertenece al usuario
+- **Historial filtrado:** Solo se recupera contexto del intento actual
+- **Búsqueda de similaridad limitada:** Solo busca en mensajes del mismo intento
+
+#### Optimizaciones Adicionales
+1. **Deduplicación inteligente:** Elimina mensajes duplicados o muy similares (85% de similitud)
+2. **Detección de patrones repetitivos:** Alerta al LLM cuando detecta 3+ respuestas similares
+3. **Control de mensajes off-topic:** Detecta y redirige preguntas fuera del tema educativo
+4. **Limpieza automática:** Mantiene máximo 80 entradas por usuario/ejercicio
+5. **Historial optimizado:** Solo últimos 8 mensajes de pregunta/respuesta del intento actual
+
+#### Impacto en el Frontend
+**Antes:**
+```typescript
+// ❌ Antiguo - Ya no funciona
+await fetch('/api/feedback/chat', {
+  method: 'POST',
+  body: JSON.stringify({
+    exercise_id: exerciseId,
+    message: userMessage
+  })
+})
+```
+
+**Ahora:**
+```typescript
+// ✅ Nuevo - Requerido
+await fetch('/api/feedback/chat', {
+  method: 'POST',
+  body: JSON.stringify({
+    exercise_id: exerciseId,
+    attempt_id: currentAttemptId, // ← Debe provenir del intento activo
+    message: userMessage
+  })
+})
+```
+
+**Gestión del Estado:**
+```typescript
+// El frontend debe mantener el attempt_id del intento en curso
+const [currentAttempt, setCurrentAttempt] = useState<{
+  id: string;
+  exercise_id: string;
+  // ... otros campos
+}>(null);
+
+// Al crear un nuevo intento
+const response = await createAttempt(exerciseId, answer);
+setCurrentAttempt(response);
+
+// Al chatear, usar el attempt_id del intento actual
+const chatResponse = await sendChatMessage({
+  exercise_id: currentAttempt.exercise_id,
+  attempt_id: currentAttempt.id,
+  message: userMessage
+});
+```
+
+**Recuperar Historial:**
+```typescript
+// Historial del intento actual solamente
+const history = await fetch(
+  `/api/feedback/history?exercise_id=${exerciseId}&attempt_id=${attemptId}`
+);
+
+// O historial de todos los intentos (para vista global)
+const allHistory = await fetch(
+  `/api/feedback/history?exercise_id=${exerciseId}`
+);
+```
+
+### 5.3 Errores de Validación Estructural (422)
 Formato general:
 ```json
 {
@@ -416,7 +538,35 @@ Detalles:
 - Clave `exercises` sólo se incluye si se pasa `include_exercises=true`.
 
 ---
-## 7. Estado LLM
+## 7. Seed de Datos de Prueba
+Archivo: `seed_test_data.sql`
+
+Uso recomendado sólo en entorno local de desarrollo para poblar:
+- 3 guías activas (CLI, Docker, Conceptos)
+- Ejercicios command, dockerfile y conceptuales
+- Attempts de ejemplo (uno conceptual completo, uno command completo, uno dockerfile incompleto)
+- Una guía marcada como completada
+
+Pasos:
+1. Crear tablas (migraciones / schema inicial).
+2. Abrir el editor SQL de Supabase (o usar `psql`).
+3. Pegar el contenido de `seed_test_data.sql` y ejecutar.
+4. Ajustar `user_id` (`test-user-...`) para que coincida con un usuario real autenticable en tu proyecto (o crea un usuario con ese UUID en la tabla `users`).
+
+Advertencias:
+- Los `DELETE` iniciales están comentados; descoméntalos si quieres limpiar, pero evitar en entornos compartidos.
+- Si existen UUID duplicados fallará la inserción: cambia los IDs conflictivos.
+- No ejecutar en producción: datos pedagógicos sintéticos.
+- El attempt dockerfile incompleto sirve para probar porcentajes parciales en `/progress/overview`.
+
+Frontend/testing:
+- Después de hacer login con el usuario ajustado, llamar a `/api/v1/progress/overview` para verificar números.
+- Crear nuevos attempts y observar cómo cambian `completed_exercises` y el auto-marcado de guías.
+
+Próximo paso sugerido (no implementado aún): script de carga automatizada (p.ej. `scripts/load_seed.py`).
+
+---
+## 8. Estado LLM
 | Método | Ruta | Auth | Rol | Descripción |
 |--------|------|------|-----|-------------|
 | GET | /llm/status | Sí | student/admin | Estado operacional |
@@ -436,7 +586,7 @@ Detalles:
 ```
 
 ---
-## 8. Modelos (Resumen)
+## 9. Modelos (Resumen)
 ### 8.1 Exercise
 ```json
 {
@@ -464,7 +614,8 @@ Detalles:
   "structural_validation_errors": [],
   "structural_validation_warnings": [],
   "llm_feedback": "markdown|null",
-  "completed": false
+  "completed": false,
+  "created_at": "2025-11-15T10:00:00Z"
 }
 ```
 

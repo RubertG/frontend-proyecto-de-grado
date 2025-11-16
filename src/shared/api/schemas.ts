@@ -31,12 +31,13 @@ export const ExerciseSchema = z.object({
   difficulty: z.string().nullable().optional(),
   enable_structural_validation: z.boolean(),
   enable_llm_feedback: z.boolean(),
-  is_active: z.boolean().optional()
+  is_active: z.boolean().optional(),
+  created_at: z.string().optional()
 });
 export type Exercise = z.infer<typeof ExerciseSchema>;
 
 export const ExercisesByGuideSchema = z.array(ExerciseSchema.pick({ id:true, title:true, type:true, difficulty:true, is_active:true }));
-export const ExercisesAllSchema = z.array(ExerciseSchema.pick({ id:true, guide_id:true, title:true, type:true, difficulty:true, enable_structural_validation:true, enable_llm_feedback:true, is_active:true }));
+export const ExercisesAllSchema = z.array(ExerciseSchema.pick({ id:true, guide_id:true, title:true, type:true, difficulty:true, enable_structural_validation:true, enable_llm_feedback:true, is_active:true, created_at:true }));
 
 // Ejercicios con progreso (endpoint: GET /guides/{guide_id}/exercises-with-progress)
 export const ExerciseWithProgressSchema = ExerciseSchema.pick({ id:true, title:true, type:true, difficulty:true, is_active:true }).extend({
@@ -59,7 +60,8 @@ const _AttemptBase = z.object({
   llm_feedback: z.string().nullable().optional(),
   completed: z.boolean().optional(),
   structural_validation_errors: z.array(z.string()).nullable().optional().transform(v => v ?? []),
-  structural_validation_warnings: z.array(z.string()).nullable().optional().transform(v => v ?? [])
+  structural_validation_warnings: z.array(z.string()).nullable().optional().transform(v => v ?? []),
+  created_at: z.string().optional()
 }).passthrough();
 
 export const AttemptSchema = _AttemptBase.transform((v) => ({

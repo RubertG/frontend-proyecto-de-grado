@@ -29,8 +29,8 @@ export async function fetchFeedbackHistory(exerciseId: string, attemptId?: strin
   return apiFetch(url, { schema: FeedbackHistorySchema });
 }
 
-export interface ChatMessageInput { exercise_id: string; message: string }
+export interface ChatMessageInput { exercise_id: string; attempt_id: string; message: string }
 export async function sendChatMessage(input: ChatMessageInput) {
-  const payload = { exercise_id: input.exercise_id, message: input.message };
+  const payload = { exercise_id: input.exercise_id, attempt_id: input.attempt_id, message: input.message };
   return apiFetch('/feedback/chat', { method: 'POST', body: JSON.stringify(payload), schema: ChatResponseSchema });
 }

@@ -7,17 +7,17 @@ import { useCreateAttemptMutation, useGenerateFeedbackMutation } from '@/feature
 import { ApiError } from '@/shared/api/http-client';
 import { useExerciseRuntimeStore } from '@/shared/stores/exercise-runtime-store';
 import { toast } from 'sonner';
-import { Loader2, Send, Sparkles } from 'lucide-react';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/shared/ui/tooltip';
+import { Loader2, Send } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog';
 import type { Exercise, Attempt } from '@/shared/api/schemas';
 
 interface AttemptSubmissionFormProps {
   exercise: Exercise;
-  lastAttempt?: Attempt | null;
 }
 
-export function AttemptSubmissionForm({ exercise, lastAttempt }: AttemptSubmissionFormProps) {
+export function AttemptSubmissionForm({ exercise }: AttemptSubmissionFormProps) {
   const [answer, setAnswer] = React.useState('');
+  const [showConfirmModal, setShowConfirmModal] = React.useState(false);
   const { mutateAsync: createAttempt, isPending: isSubmitting } = useCreateAttemptMutation();
   const { mutateAsync: genFeedback, isPending: isGeneratingFeedback } = useGenerateFeedbackMutation();
   const runtime = useExerciseRuntimeStore();
@@ -28,6 +28,17 @@ export function AttemptSubmissionForm({ exercise, lastAttempt }: AttemptSubmissi
       toast.error('La respuesta no puede estar vacía');
       return;
     }
+    // Si hay un intento en curso con feedback, mostrar modal de confirmación
+    if (runtime.attemptId && !showConfirmModal) {
+      setShowConfirmModal(true);
+      return;
+    }
+    // Proceder con el envío
+    await submitAttempt();
+  }
+
+  async function submitAttempt() {
+    setShowConfirmModal(false);
     try {
   runtime.setSubmitting(true);
   runtime.resetValidation();
@@ -66,7 +77,7 @@ export function AttemptSubmissionForm({ exercise, lastAttempt }: AttemptSubmissi
             runtime.markValidationFailed(message, errs);
           }
         }
-        toast.error('Error enviando intento');
+        toast.error('Debes iniciar sesión para enviar un intento');
       } else {
         toast.error('Error enviando intento');
       }
@@ -75,36 +86,13 @@ export function AttemptSubmissionForm({ exercise, lastAttempt }: AttemptSubmissi
     }
   }
 
-  async function handleRetryFeedback() {
-    if (!lastAttempt) return;
-    try {
-      runtime.setGenerating(true);
-  await genFeedback({ exercise_id: exercise.id, submitted_answer: lastAttempt.submitted_answer || '' });
-      toast.success('Feedback regenerado');
-    } catch {
-      toast.error('No se pudo regenerar feedback');
-    } finally {
-      runtime.setGenerating(false);
-    }
-  }
-
   const isBusy = isSubmitting || runtime.isSubmitting;
   const isGen = isGeneratingFeedback || runtime.isGeneratingFeedback;
-  // Bloquear envío si hay un intento/conversación en curso (hasta que el usuario presione "Otro intento")
-  const isLockedByConversation = !!runtime.attemptId;
   const editorLanguage = exercise.type === 'dockerfile' ? 'dockerfile' : 
                         exercise.type === 'command' ? 'shell' : 
                         exercise.type === 'compose' ? 'yaml' : 'markdown';
 
   const editorApiRef = React.useRef<MonacoControlledEditorHandle | null>(null);
-
-  function handleNewAttempt() {
-    // Limpia el editor para permitir escribir un nuevo intento y notifica runtime para ocultar feedback previo
-    // No limpiamos para conservar el texto del usuario
-    runtime.setAttempt(null); // Esto hace que desaparezca el chat asociado al último intento
-    // Enfocar el editor tras un pequeño timeout para asegurar montaje estable
-    setTimeout(() => editorApiRef.current?.focus(), 10);
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full mx-auto max-w-full">
@@ -128,46 +116,32 @@ export function AttemptSubmissionForm({ exercise, lastAttempt }: AttemptSubmissi
           )}
         </div>
   <div className="flex items-center justify-start gap-2 w-full max-w-6xl">
-          {isLockedByConversation ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="inline-flex">
-                  <Button type="submit" disabled className="relative font-semibold shadow">
-                    {isBusy && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
-                    <Send className="h-4 w-4 mr-1" /> {isBusy ? 'Enviando...' : 'Enviar intento'}
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                Termina la conversación actual o pulsa &quot;Otro intento&quot; para continuar.
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Button type="submit" disabled={isBusy || isGen} className="relative font-semibold shadow">
-              {isBusy && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
-              <Send className="h-4 w-4 mr-1" /> {isBusy ? 'Enviando...' : 'Enviar intento'}
-            </Button>
-          )}
-          {exercise.enable_llm_feedback && lastAttempt && !lastAttempt.llm_feedback && (
-            <Button type="button" variant="outline" onClick={handleRetryFeedback} disabled={isGen || isBusy} className="font-medium">
-              {isGen && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
-              <Sparkles className="h-4 w-4 mr-1" /> {isGen ? 'Generando...' : 'Reintentar feedback'}
-            </Button>
-          )}
-          {lastAttempt && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleNewAttempt}
-              disabled={isBusy || isGen}
-              className="text-xs font-medium"
-            >
-              Otro intento
-            </Button>
-          )}
+          <Button type="submit" disabled={isBusy || isGen} className="relative font-semibold shadow">
+            {isBusy && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+            <Send className="h-4 w-4 mr-1" /> {isBusy ? 'Enviando...' : 'Enviar intento'}
+          </Button>
         </div>
       </div>
+
+      <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar nuevo intento</DialogTitle>
+            <DialogDescription>
+              Al enviar un nuevo intento, se quitará el feedback en curso de la conversación actual. ¿Deseas continuar?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={submitAttempt} disabled={isBusy}>
+              {isBusy && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+              Continuar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </form>
   );
 }

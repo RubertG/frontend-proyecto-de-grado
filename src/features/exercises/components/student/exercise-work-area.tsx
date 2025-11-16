@@ -60,7 +60,7 @@ export function ExerciseWorkArea({ exercise }: ExerciseWorkAreaProps) {
   })();
 
   return (
-    <div className="flex flex-col gap-10 max-w-none">
+    <div className="flex flex-col gap-5 max-w-5xl">
       <header className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight">{exercise.title}</h1>
         <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -88,7 +88,7 @@ export function ExerciseWorkArea({ exercise }: ExerciseWorkAreaProps) {
       </section>
   <section className="flex flex-col gap-8" aria-labelledby="workspace-heading">
         <h2 id="workspace-heading" className="sr-only">Área de respuesta y feedback</h2>
-        <AttemptSubmissionForm exercise={exercise} lastAttempt={lastAttempt} />
+        <AttemptSubmissionForm exercise={exercise} />
         <StructuralValidationPanel type={exercise.type} />
         {canShowFeedback ? (
             <div className="flex flex-col gap-4 max-w-5xl">

@@ -59,10 +59,10 @@ export function useFeedbackHistory(exerciseId: string, attemptId?: string, enabl
   });
 }
 
-export function useChatMessageMutation(exerciseId: string, attemptId?: string) {
+export function useChatMessageMutation(exerciseId: string, attemptId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (vars: { message: string }) => sendChatMessage({ exercise_id: exerciseId, message: vars.message }),
+    mutationFn: (vars: { message: string }) => sendChatMessage({ exercise_id: exerciseId, attempt_id: attemptId, message: vars.message }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.feedbackHistory(exerciseId, attemptId) });
     }

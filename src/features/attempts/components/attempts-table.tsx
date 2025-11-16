@@ -18,10 +18,22 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
   const [userFilter, setUserFilter] = React.useState('');
   const [openUser, setOpenUser] = React.useState(false);
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
   const search = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { data, isLoading, refetch, isError } = useAttemptsByExercise(exerciseId, userFilter);
+  const { data: rawData, isLoading, refetch, isError } = useAttemptsByExercise(exerciseId, userFilter);
+  
+  // Ordenar por created_at
+  const data = React.useMemo(() => {
+    if (!rawData) return rawData;
+    return [...rawData].sort((a, b) => {
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return sortDir === 'desc' ? dateB - dateA : dateA - dateB;
+    });
+  }, [rawData, sortDir]);
+  
   useQueryClient(); // por si luego necesitamos invalidaciones específicas
   const selected = data?.find(a => a.id === selectedId);
   const PAGE_SIZE = 20;
@@ -136,6 +148,15 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
             <TableRow>
               <TableHead>Intento</TableHead>
               <TableHead>Usuario</TableHead>
+              <TableHead>
+                <button 
+                  onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
+                  className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+                >
+                  Fecha de creación
+                  <span className="text-xs">{sortDir === 'desc' ? '↓' : '↑'}</span>
+                </button>
+              </TableHead>
               <TableHead>Validación</TableHead>
               <TableHead>Completado</TableHead>
               <TableHead>Acciones</TableHead>
@@ -143,13 +164,13 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
           </TableHeader>
           <TableBody>
             {isLoading && (
-              <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-6"><Loader /></TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-6"><Loader /></TableCell></TableRow>
             )}
             {isError && !isLoading && (
-              <TableRow><TableCell colSpan={5} className="text-center text-destructive py-6 text-sm">Error cargando intentos</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center text-destructive py-6 text-sm">Error cargando intentos</TableCell></TableRow>
             )}
             {!isLoading && !isError && data && data.length === 0 && (
-              <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-6">Sin intentos aún</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-6">Sin intentos aún</TableCell></TableRow>
             )}
             {paginated.map(a => {
               const struct = a.structural_validation_passed;
@@ -158,6 +179,15 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
                 <TableRow key={a.id} data-state={active? 'selected': undefined} className={active ? 'bg-accent/40' : undefined}>
                   <TableCell className="font-mono text-xs truncate" title={a.id}>{a.id}</TableCell>
                   <TableCell className="text-sm truncate" title={a.user?.email || a.user?.id}>{a.user?.name || a.user?.email || '—'} {a.user?.id && <p className="font-mono text-xs opacity-60">{a.user.id}</p>}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">
+                    {a.created_at ? new Date(a.created_at).toLocaleDateString('es-ES', { 
+                      year: 'numeric', 
+                      month: 'short', 
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    }) : <span className="text-muted-foreground">—</span>}
+                  </TableCell>
                   <TableCell>
                     {struct == null ? (
                       <Badge variant="outline">No evaluado</Badge>
@@ -228,14 +258,14 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
                 {!selected.structural_validation_errors?.length && !selected.structural_validation_warnings?.length && <li className="text-muted-foreground">Sin mensajes</li>}
               </ul>
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Estado</p>
               <div className="flex flex-wrap gap-2 items-center text-sm">
                 <Badge variant={selected.structural_validation_passed? 'default':'destructive'}>Validación {selected.structural_validation_passed? 'Aprobada':'Falló'}</Badge>
                 <Badge variant={selected.llm_feedback? 'default':'secondary'}>Feedback {selected.llm_feedback? 'Sí':'No'}</Badge>
                 <Badge variant={selected.completed? 'default':'secondary'}>Completado {selected.completed? 'Sí':'No'}</Badge>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       )}

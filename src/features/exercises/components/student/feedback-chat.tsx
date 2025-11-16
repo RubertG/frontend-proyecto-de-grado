@@ -37,7 +37,15 @@ function Bubble({ role, children, variant = 'default' }: { role: 'user' | 'assis
 
 export function FeedbackChat({ attempt, isGenerating, onRetry }: FeedbackChatProps) {
   const exerciseId = attempt?.exercise_id;
-  const { mutateAsync: sendMessage, isPending: sending } = useChatMessageMutation(exerciseId || '', attempt?.id);
+  const attemptId = attempt?.id;
+  
+  // Solo habilitar el chat si tenemos ambos IDs
+  const canChat = !!(exerciseId && attemptId);
+  const { mutateAsync: sendMessage, isPending: sending } = useChatMessageMutation(
+    exerciseId || '', 
+    attemptId || ''
+  );
+  
   const [message, setMessage] = React.useState('');
   const [chatMessages, setChatMessages] = React.useState<ChatMessage[]>([]);
   const listRef = React.useRef<HTMLDivElement | null>(null);
@@ -97,7 +105,7 @@ export function FeedbackChat({ attempt, isGenerating, onRetry }: FeedbackChatPro
   <div ref={listRef} className="flex flex-col gap-3 max-h-[380px] overflow-y-auto overflow-x-visible px-2 sm:px-3 pt-2 pb-3 w-full">
         {hasSubmitted && (
           <Bubble role="user">
-            <div className="whitespace-pre-wrap break-words font-medium">{attempt.submitted_answer}</div>
+            <div className="whitespace-pre-wrap wrap-break-word font-medium">{attempt.submitted_answer}</div>
             <div className="mt-2 text-[11px] opacity-70 font-normal">Tu intento • inicial</div>
           </Bubble>
         )}
@@ -119,13 +127,13 @@ export function FeedbackChat({ attempt, isGenerating, onRetry }: FeedbackChatPro
         )}
         {!isGenerating && feedback && (
           <Bubble role="assistant">
-            <article className="prose prose-sm dark:prose-invert max-w-none [&_p]:mb-3 last:[&_p]:mb-0">
+            <article className="prose prose-sm dark:prose-invert max-w-none [&_p]:mb-3 last:[&_p]:mb-0 [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mb-2 [&_h1]:mt-4 first:[&_h1]:mt-0 [&_h2]:text-base [&_h2]:font-bold [&_h2]:mb-2 [&_h2]:mt-3 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mb-1.5 [&_h3]:mt-2 [&_h4]:text-sm [&_h4]:font-medium [&_h4]:mb-1 [&_h4]:mt-2">
               <ReactMarkdown rehypePlugins={[rehypeSanitize]} remarkPlugins={[remarkGfm]}>{feedback}</ReactMarkdown>
             </article>
             <div className="mt-2 text-[11px] opacity-60">Asistente • evaluación</div>
           </Bubble>
         )}
-        {!isGenerating && !feedback && !structuralFailed && (
+        {!isGenerating && !feedback && !structuralFailed && hasSubmitted && (
           <Bubble role="assistant">
             <p className="text-[13px] font-medium mb-1">No se generó feedback</p>
             <button
@@ -137,7 +145,14 @@ export function FeedbackChat({ attempt, isGenerating, onRetry }: FeedbackChatPro
         )}
         {chatMessages.map((msg) => (
           <Bubble key={msg.id} role={msg.role}>
-            <article className={cn('prose prose-sm dark:prose-invert max-w-none', msg.role==='user' && 'font-medium whitespace-pre-wrap break-words')}>
+            <article className={cn(
+              'prose prose-sm dark:prose-invert max-w-none',
+              '[&_h1]:text-lg [&_h1]:font-bold [&_h1]:mb-2 [&_h1]:mt-4 first:[&_h1]:mt-0',
+              '[&_h2]:text-base [&_h2]:font-bold [&_h2]:mb-2 [&_h2]:mt-3',
+              '[&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mb-1.5 [&_h3]:mt-2',
+              '[&_h4]:text-sm [&_h4]:font-medium [&_h4]:mb-1 [&_h4]:mt-2',
+              msg.role==='user' && 'whitespace-pre-wrap wrap-break-word'
+            )}>
               <ReactMarkdown rehypePlugins={[rehypeSanitize]} remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
             </article>
             <div className="mt-2 text-[11px] opacity-60">{msg.role === 'user' ? 'Tú' : 'Asistente'} • chat</div>
@@ -152,7 +167,7 @@ export function FeedbackChat({ attempt, isGenerating, onRetry }: FeedbackChatPro
           </Bubble>
         )}
       </div>
-      {!structuralFailed && feedback && (
+      {!structuralFailed && feedback && canChat && (
         <form ref={formRef} onSubmit={handleSend} className="flex items-end gap-2 pt-1 w-full">
           <div className="flex-1 w-full">
             <Textarea
