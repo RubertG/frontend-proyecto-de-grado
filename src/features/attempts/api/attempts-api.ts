@@ -11,6 +11,18 @@ export async function fetchAttemptsByExercise(exerciseId: string): Promise<Attem
   return raw as AttemptsList;
 }
 
+// Admin: listado global con filtros opcionales exercise_id, user_id, limit
+export async function fetchAttemptsAdminAll(params: { exerciseId?: string; userId?: string; limit?: number }): Promise<AttemptsList> {
+  const sp = new URLSearchParams();
+  if (params.exerciseId) sp.set('exercise_id', params.exerciseId);
+  if (params.userId) sp.set('user_id', params.userId);
+  if (params.limit) sp.set('limit', String(params.limit));
+  const qs = sp.toString();
+  const url = `/attempts/admin/all${qs?`?${qs}`:''}`;
+  const raw = await apiFetch<AttemptsListInput>(url, { schema: AttemptsListSchema });
+  return raw as AttemptsList;
+}
+
 export interface CreateAttemptInput { exercise_id: string; submitted_answer: string; completed?: boolean }
 export async function createAttempt(input: CreateAttemptInput) {
   const payload = { completed: false, ...input };

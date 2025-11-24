@@ -103,7 +103,7 @@ export function ExerciseWorkArea({ exercise }: ExerciseWorkAreaProps) {
             </div>
           ) : null }
       </section>
-      {(attempts && attempts.length > 1) && (
+      {(attempts && attempts.length > 0) && (
         <section className="space-y-4 max-w-5xl" aria-labelledby="intentos-heading">
           <h2 id="intentos-heading" className="text-base font-medium tracking-tight">Intentos previos</h2>
           <AttemptsCompactList exerciseId={exercise.id} />

@@ -36,6 +36,7 @@ Los campos `admin` indican verificación de rol mediante `require_role('admin')`
 |--------|------|------|-----|-------------|
 | POST | /attempts/ | Sí | student/admin | Crear intento (valida estructura si aplica) |
 | GET | /attempts/by-exercise/{exercise_id} | Sí | student/admin | Listar intentos propios |
+| GET | /attempts/admin/all | Sí | admin | Listar intentos (global, filtros) |
 
 ### Crear intento – POST /attempts/
 Request body:
@@ -90,6 +91,49 @@ Reglas de asignación de `completed` al crear un intento:
   }
 ]
 ```
+
+### Listar intentos global (admin) – GET /attempts/admin/all
+Parámetros query opcionales:
+- `exercise_id`: filtra por ejercicio
+- `user_id`: filtra por usuario
+- `limit`: máximo de registros (default 500)
+
+Ejemplo sin filtros:
+```
+GET /attempts/admin/all
+```
+
+Ejemplo filtrando por ejercicio:
+```
+GET /attempts/admin/all?exercise_id=9a3f6d40-3fb2-45d4-9c7d-76c9ea5f1d11&limit=200
+```
+
+Response (200):
+```json
+[
+  {
+    "id": "3d1f0f7a-5e3d-4a8a-a7a4-9d1e6b2c8f90",
+    "exercise_id": "9a3f6d40-3fb2-45d4-9c7d-76c9ea5f1d11",
+    "user": {
+      "id": "8b7c8c0e-7c3d-4c1c-af2b-9d9b2f9f1a33",
+      "name": "Alice",
+      "email": "alice@example.com",
+      "role": "student"
+    },
+    "submitted_answer": "FROM python:3.12-slim\nRUN pip install flask",
+    "structural_validation_passed": true,
+    "structural_validation_errors": [],
+    "structural_validation_warnings": [],
+    "llm_feedback": null,
+    "completed": false,
+    "created_at": "2025-11-15T10:00:00Z"
+  }
+]
+```
+
+Notas:
+- Si el usuario fue eliminado, se devuelve `name: "unknown"`, `email: "unknown@example.com"` y `role: "unknown"`.
+- Usar paginación futura si `limit` no es suficiente.
 
 ---
 ## 3. Guías

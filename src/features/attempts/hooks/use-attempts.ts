@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/shared/api/query-keys';
-import { fetchAttemptsByExercise, createAttempt, generateAttemptFeedback, fetchFeedbackHistory, sendChatMessage } from '../api/attempts-api';
+import { fetchAttemptsByExercise, fetchAttemptsAdminAll, createAttempt, generateAttemptFeedback, fetchFeedbackHistory, sendChatMessage } from '../api/attempts-api';
 import type { Attempt } from '@/shared/api/schemas';
 
 export function useAttemptsByExercise(exerciseId: string, userFilter?: string) {
@@ -9,6 +9,36 @@ export function useAttemptsByExercise(exerciseId: string, userFilter?: string) {
     queryKey: [...queryKeys.attemptsByExercise(exerciseId), userFilter ?? ''],
     queryFn: () => fetchAttemptsByExercise(exerciseId),
     select: (data: Attempt[]) => {
+      // Ordenar por created_at descendente (más reciente primero)
+      const sorted = [...data].sort((a, b) => {
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return dateB - dateA;
+      });
+      // Filtrar si hay userFilter
+      if (!userFilter) return sorted;
+      const term = userFilter.toLowerCase();
+      return sorted.filter(a => {
+        const id = a.user?.id?.toLowerCase();
+        const name = a.user?.name?.toLowerCase();
+        const email = a.user?.email?.toLowerCase();
+        return (
+          (id && id.includes(term)) ||
+          (name && name.includes(term)) ||
+          (email && email.includes(term))
+        );
+      });
+    },
+    enabled: !!exerciseId,
+  });
+}
+
+// Admin: obtiene todos los intentos (global) filtrando por exerciseId y opcional userId
+export function useAttemptsAdminAll(exerciseId?: string, userFilter?: string, limit: number = 500, enabled: boolean = true) {
+  return useQuery({
+    queryKey: [...queryKeys.attemptsAdminAll(exerciseId, userFilter), limit],
+    queryFn: () => fetchAttemptsAdminAll({ exerciseId, userId: userFilter || undefined, limit }),
+    select: (data) => {
       if (!userFilter) return data;
       const term = userFilter.toLowerCase();
       return data.filter(a => {
@@ -22,7 +52,7 @@ export function useAttemptsByExercise(exerciseId: string, userFilter?: string) {
         );
       });
     },
-    enabled: !!exerciseId,
+    enabled,
   });
 }
 

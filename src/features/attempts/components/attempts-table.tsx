@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { useAttemptsByExercise } from '../hooks/use-attempts';
+import { useAttemptsByExercise, useAttemptsAdminAll } from '../hooks/use-attempts';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { ReadOnlyCode } from '@/features/exercises/components/read-only-code';
@@ -9,12 +9,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/shared/ui/table';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList, CommandEmpty } from '@/shared/ui/command';
-import { ChevronsUpDown, Loader2 } from 'lucide-react';
+import { ChevronsUpDown } from 'lucide-react';
 import { Loader } from '@/shared/ui/Loader';
 
-interface AttemptsTableProps { exerciseId: string; }
-
-export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
+interface AttemptsTableProps { exerciseId: string; admin?: boolean; pageSize?: number }
+export function AttemptsTable({ exerciseId, admin = false, pageSize = 20 }: AttemptsTableProps) {
   const [userFilter, setUserFilter] = React.useState('');
   const [openUser, setOpenUser] = React.useState(false);
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
@@ -22,8 +21,12 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
   const search = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { data: rawData, isLoading, refetch, isError } = useAttemptsByExercise(exerciseId, userFilter);
-  
+  const studentQuery = useAttemptsByExercise(exerciseId, userFilter);
+  const adminQuery = useAttemptsAdminAll(exerciseId, userFilter, 500, admin);
+  const rawData = admin ? adminQuery.data : studentQuery.data;
+  const isLoading = admin ? adminQuery.isLoading : studentQuery.isLoading;
+  const isError = admin ? adminQuery.isError : studentQuery.isError;
+  const refetch = admin ? adminQuery.refetch : studentQuery.refetch;
   // Ordenar por created_at
   const data = React.useMemo(() => {
     if (!rawData) return rawData;
@@ -36,7 +39,7 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
   
   useQueryClient(); // por si luego necesitamos invalidaciones específicas
   const selected = data?.find(a => a.id === selectedId);
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = pageSize;
   const [page, setPage] = React.useState(0);
   const total = data?.length || 0;
   const pageCount = Math.ceil(total / PAGE_SIZE);
@@ -44,7 +47,7 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
     if (!data) return [];
     const start = page * PAGE_SIZE;
     return data.slice(start, start + PAGE_SIZE);
-  }, [data, page]);
+  }, [data, page, PAGE_SIZE]);
 
   React.useEffect(()=> {
     // Si cambia el filtro de usuario reiniciamos página
@@ -80,7 +83,7 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
     <div className="space-y-4">
       <div className="flex flex-wrap gap-3 items-end">
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Filtrar por usuario</label>
+          <label className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Filtrar por usuario {admin && <span className="opacity-60">(global)</span>}</label>
           <Popover open={openUser} onOpenChange={setOpenUser}>
             <PopoverTrigger asChild>
               <Button
@@ -140,7 +143,7 @@ export function AttemptsTable({ exerciseId }: AttemptsTableProps) {
     variant="secondary"
     size="sm"
     onClick={()=>{ setUserFilter(''); const sp = new URLSearchParams(search?.toString()); sp.delete('user'); sp.delete('attempt'); router.replace(pathname + (sp.toString()?`?${sp.toString()}`:''), { scroll:false }); refetch(); }}
-  >Limpiar</Button>
+  >Limpiar {admin && 'filtros'}</Button>
       </div>
       <div className="rounded border bg-background/60">
         <Table>

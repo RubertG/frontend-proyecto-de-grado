@@ -6,6 +6,7 @@ export const queryKeys = {
   exerciseDetail: (exerciseId: string) => ['exercises','detail', exerciseId] as const,
   exercisesWithProgress: (guideId: string) => ['exercises','with-progress', guideId] as const,
   attemptsByExercise: (exerciseId: string) => ['attempts','by-exercise', exerciseId] as const,
+  attemptsAdminAll: (exerciseId?: string, userId?: string) => ['attempts','admin','all', exerciseId ?? 'all', userId ?? ''] as const,
   feedbackHistory: (exerciseId: string, attemptId?: string) => attemptId ? ['feedback','history', exerciseId, attemptId] as const : ['feedback','history', exerciseId] as const,
   llmStatus: () => ['llm','status'] as const,
   progressGuides: () => ['progress','guides'] as const,
