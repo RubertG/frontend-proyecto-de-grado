@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+README.md
+CHANGELOG.md
+
+# Testing
+__tests__/
+.jest/
+coverage/
+*.test.ts
+*.test.tsx
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+
+# Other
+.husky/
+.prettierignore
+.eslintignore
+eslint.config.mjs
+prettier.config.cjs
+tsconfig.json
+next.config.ts
+postcss.config.mjs
+middleware.ts
+components.json
+debug-auth.js

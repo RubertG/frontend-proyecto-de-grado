@@ -7,17 +7,13 @@
 - [Descripción General](#-descripción-general)
 - [🚀 Para Nuevos Desarrolladores](#-para-nuevos-desarrolladores)
 - [Tecnologías Principales](#-tecnologías-principales)
+- [📦 Instalación y Deployment](#-instalación-y-deployment) **← NUEVA GUÍA DETALLADA**
 - [Prerequisitos](#-prerequisitos)
-- [Instalación](#-instalación)
+- [Instalación Local Rápida](#-instalación-local-rápida)
 - [Configuración](#-configuración)
 - [Comandos Disponibles](#-comandos-disponibles)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Flujo de Desarrollo](#-flujo-de-desarrollo)
-- [Deployment en Producción](#-deployment-en-producción)
-  - [Vercel](#opción-1-vercel-recomendado)
-  - [Netlify](#opción-2-netlify)
-  - [Docker](#opción-3-docker)
-  - [VPS/Servidor Propio](#opción-4-vpsservidor-propio)
 - [CI/CD](#-cicd)
 - [Optimizaciones de Producción](#-optimizaciones-de-producción)
 - [Monitoreo y Observabilidad](#-monitoreo-y-observabilidad)
@@ -91,30 +87,57 @@ Ver `.DOCUMENTATION` para detalles completos de arquitectura.
 
 ---
 
-## 📦 Instalación
+## 📦 Instalación y Deployment
+
+### ⚡ Opciones Rápidas
+
+| Opción | Tiempo | Costo | Recomendado para |
+|--------|--------|-------|------------------|
+| **[Vercel](INSTALLATION.md#-opción-1-vercel-recomendado---sin-servidor)** | 5 min | Desde $0/mes | Producción (sin servidor) |
+| **[Servidor Propio](INSTALLATION.md#-opción-2-servidor-propio-vpsdedicado)** | 30 min | $5+/mes | Control total |
+| **[Docker](INSTALLATION.md#-opción-3-docker-local-o-servidor)** | 10 min | Variable | Desarrollo/Staging |
+
+👉 **[→ Ver guía completa de instalación (INSTALLATION.md)](INSTALLATION.md)**
+
+Incluye instrucciones paso a paso para:
+- **Vercel**: Zero-config, auto-scaling, CDN global
+- **Servidor Propio**: VPS, Nginx, PM2, SSL, backups
+- **Docker**: Local, servidor, docker-compose, K8s ready
+
+---
+
+## ✅ Instalación Local Rápida
+
+Para empezar localmente en **2 minutos**:
 
 ```powershell
 git clone <URL_DEL_REPOSITORIO>
 cd frontend-proyecto-de-grado
 pnpm install
+pnpm dev
 ```
+
+Abre [http://localhost:3000](http://localhost:3000)
 
 ⚠️ **Solo pnpm**: El proyecto rechaza npm/yarn en el script preinstall.
 
 ---
 
-## ⚙️ Configuración
+## ⚙️ Configuración Local
 
 Crea `.env.local` con:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
-NEXT_PUBLIC_API_BASE=http://localhost:8000/api/v1  # Producción: https://api.tudominio.com/api/v1
+NEXT_PUBLIC_API_BASE=http://localhost:8000/api/v1
 ```
 
-**Obtener credenciales Supabase**: Dashboard → Settings → API  
-**Producción**: Configura estas variables en tu plataforma de hosting (Vercel, Netlify, etc.)
+**Obtener credenciales**: 
+- Supabase Dashboard → Settings → API
+- Backend: debe estar corriendo localmente en puerto 8000
+
+Para **producción**, ver [INSTALLATION.md](INSTALLATION.md#-configuración-de-variables-de-entorno)
 
 ---
 
@@ -170,56 +193,31 @@ src/
 
 ## 🚢 Deployment en Producción
 
-### Checklist Pre-Deploy
+### 📖 Ver Guía Completa: [INSTALLATION.md](INSTALLATION.md)
 
-✅ `pnpm build && pnpm start` exitoso localmente  
-✅ Variables de entorno configuradas para producción  
-✅ Backend API desplegado y accesible  
-✅ Supabase configurado para producción
+Incluye instrucciones detalladas para:
 
----
+| Opción | Tiempo | Recomendado para |
+|--------|--------|------------------|
+| **[Vercel](INSTALLATION.md#-opción-1-vercel-recomendado---sin-servidor)** | 5 min | Producción (sin servidor) |
+| **[Servidor Propio](INSTALLATION.md#-opción-2-servidor-propio-vpsdedicado)** | 30 min | Control total + backups |
+| **[Docker](INSTALLATION.md#-opción-3-docker-local-o-servidor)** | 10 min | Desarrollo/Staging |
 
-### Opción 1: Vercel (Recomendado)
+Cada opción incluye:
+- Paso a paso desde inicio
+- Configuración de SSL/HTTPS
+- Monitoreo y logs
+- Troubleshooting
+- Mejores prácticas
 
-**Ventajas**: Zero-config, CDN global, preview deployments, edge functions, SSL automático
+### Quick Deploy: Vercel
 
-**Deploy**:
-
-1. [Importar repo](https://vercel.com/new) en Vercel Dashboard
-2. Configurar variables de entorno:
-   ```
-   NEXT_PUBLIC_SUPABASE_URL
-   NEXT_PUBLIC_SUPABASE_ANON_KEY
-   NEXT_PUBLIC_API_BASE  # https://api.tudominio.com/api/v1
-   ```
-3. Deploy automático
-
-**CLI** (opcional):
-
-```bash
-npm i -g vercel
-vercel login
-vercel  # Sigue las instrucciones
-```
-
-**Custom domain**: Vercel Dashboard → Domains → Agregar dominio
+1. Conectar repo en [vercel.com/new](https://vercel.com/new)
+2. Agregar variables de entorno (Supabase + API Base)
+3. Click Deploy
+4. ✅ Listo en 5 minutos
 
 ---
-
-### Opción 2: Netlify
-
-1. [Importar repo](https://app.netlify.com/start) en Netlify
-2. Build settings: `pnpm build` → `.next`
-3. Agregar variables de entorno (mismo que Vercel)
-4. Deploy
-
-Netlify instala automáticamente el plugin Essential Next.js.
-
----
-
-### Opción 3: Docker
-
-**Dockerfile** (multi-stage):
 
 ```dockerfile
 FROM node:20-alpine AS deps
@@ -319,22 +317,21 @@ git pull && pnpm install --frozen-lockfile && pnpm build && pm2 restart platafor
 
 ## 🔄 CI/CD
 
-### GitHub Actions (`.github/workflows/deploy.yml`)
+### GitHub Actions
+
+Los workflows automáticos verifican calidad antes de desplegar:
 
 ```yaml
-name: Deploy
-on:
-  push:
-    branches: [main]
+# .github/workflows/lint-test.yml
+name: Lint & Test
+on: [pull_request]
 
 jobs:
-  deploy:
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -343,12 +340,11 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_API_BASE: ${{ secrets.NEXT_PUBLIC_API_BASE }}
-      # Deploy a Vercel/Netlify/tu servidor
 ```
+
+**Vercel** integra automáticamente con GitHub (preview deployments en cada PR)
+
+Ver [INSTALLATION.md](INSTALLATION.md) para CI/CD en servidores propios
 
 **Secrets**: Configurar en GitHub repo → Settings → Secrets and variables → Actions
 
