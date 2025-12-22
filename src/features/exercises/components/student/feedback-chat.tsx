@@ -1,3 +1,30 @@
+/**
+ * @fileoverview Chat interactivo con IA para feedback y aclaraciones de ejercicios.
+ *
+ * FUNCIONALIDADES:
+ * - Muestra intento inicial del estudiante en burbuja
+ * - Muestra errores de validación estructural (si existen)
+ * - Renderiza feedback LLM en Markdown con formato educativo
+ * - Permite chat bidireccional con la IA para preguntas
+ * - Scroll automático al agregar mensajes
+ * - Botón de reintentar si feedback falló al generar
+ *
+ * TIPOS DE BURBUJAS:
+ * - 'user': Mensajes del estudiante (azul, alineado derecha)
+ * - 'assistant': Respuestas de la IA (gris, alineado izquierda)
+ * - 'system': Errores estructurales (amarillo, centrado)
+ *
+ * FLUJO DE CHAT:
+ * 1. Usuario escribe pregunta en textarea
+ * 2. Mensaje se agrega localmente y se envía al backend
+ * 3. Backend mantiene contexto completo (ejercicio + attempt + historial)
+ * 4. Respuesta se renderiza en Markdown con rehype-sanitize
+ *
+ * NOTAS:
+ * - Chat solo disponible si hay attemptId y exerciseId
+ * - Markdown sanitizado para prevenir XSS
+ * - Estado de carga (isGenerating, sending) muestra spinners
+ */
 'use client';
 import React from 'react';
 import { Attempt } from '@/shared/api/schemas';

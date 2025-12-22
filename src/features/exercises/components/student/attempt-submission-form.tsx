@@ -1,3 +1,31 @@
+/**
+ * @fileoverview Formulario para enviar attempts de resolución de ejercicios.
+ *
+ * COMPONENTES PRINCIPALES:
+ * - Editor Monaco (command/dockerfile/compose) con syntax highlighting
+ * - Textarea simple (conceptual) para respuestas textuales
+ * - Modal de confirmación si ya existe feedback previo
+ * - Integración con exercise-runtime-store para estados
+ *
+ * FLUJO DE ENVÍO:
+ * 1. Usuario escribe código/texto en el editor
+ * 2. Click en "Enviar intento"
+ * 3. Si ya hay attempt con feedback: modal de confirmación
+ * 4. Llamada a createAttempt() -> validación estructural backend
+ * 5. Si enable_llm_feedback=true: generateAttemptFeedback()
+ * 6. UI actualiza con resultado (feedback o errores)
+ *
+ * VALIDACIÓN:
+ * - Cliente valida que answer no esté vacío
+ * - Backend valida estructura según tipo de ejercicio
+ * - Errores se muestran en StructuralValidationPanel
+ *
+ * LENGUAJES MONACO:
+ * - 'dockerfile': Syntax Dockerfile
+ * - 'command': Shell/Bash syntax
+ * - 'compose': YAML syntax
+ * - 'markdown': Respuestas conceptuales (no usado con Monaco)
+ */
 'use client';
 import React from 'react';
 import {

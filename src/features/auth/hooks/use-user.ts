@@ -1,3 +1,33 @@
+/**
+ * @fileoverview Hook centralizado para gestión de usuario autenticado.
+ *
+ * ARQUITECTURA:
+ * - Usa React Query para fetch/cache de datos de /users/me
+ * - Sincroniza automáticamente con sessionStore para acceso global
+ * - Maneja cookies de autenticación via http-client (SSR y CSR)
+ * - Implementa logout con limpieza completa de estado
+ *
+ * FLUJO DE AUTENTICACIÓN:
+ * 1. Usuario hace login -> backend retorna cookie 'auth_token'
+ * 2. useUser detecta cookie y hace fetch a /users/me
+ * 3. Si 200 OK: actualiza sessionStore con datos del usuario
+ * 4. Si 401/403: limpia sesión y muestra pantalla de login
+ * 5. Refetch automático al reenfocar ventana (staleTime: 2min)
+ *
+ * LOGOUT:
+ * - Llama a /api/auth/logout para limpiar cookie en servidor
+ * - Limpia sessionStore y query cache
+ * - Redirige a /autenticacion/iniciar-sesion sin reload de página
+ *
+ * USO:
+ * ```tsx
+ * function MyComponent() {
+ *   const { user, isAuthenticated, logout } = useUser();
+ *   if (!isAuthenticated) return <Redirect to="/login" />;
+ *   return <div>Hola {user.name}</div>;
+ * }
+ * ```
+ */
 'use client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch, ApiError } from '@/shared/api/http-client';
@@ -7,10 +37,12 @@ import { useSessionStore } from '@/shared/stores/session-store';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
-// Hook centralizado para el usuario autenticado.
-// - Obtiene el token vía cookies en http-client
-// - Sincroniza automáticamente el resultado con el sessionStore
-// - Proporciona funciones de utilidad para autenticación
+/**
+ * Hook centralizado para el usuario autenticado.
+ * - Obtiene el token vía cookies en http-client
+ * - Sincroniza automáticamente el resultado con el sessionStore
+ * - Proporciona funciones de utilidad para autenticación
+ */
 export function useUser() {
   const { user: userInStore, setSession, clear, loggedOut, logOut } = useSessionStore();
   const queryClient = useQueryClient();

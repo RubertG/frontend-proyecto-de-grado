@@ -72,7 +72,7 @@ function basicServerSanitize(html: string, { strict, allowIframes }: SanitizeOpt
   }
 
   // Filtrado de tags y atributos
-  out = out.replace(/<([^>]+)>/g, (full, inner) => {
+  out = out.replace(/<([^>]+)>/g, (_full, inner) => {
     const match = /^(\/)?\s*([a-z0-9-]+)([\s\S]*)$/i.exec(inner);
     if (!match) return '';
     const closing = !!match[1];

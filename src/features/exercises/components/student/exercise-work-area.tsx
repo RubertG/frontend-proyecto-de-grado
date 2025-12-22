@@ -1,3 +1,30 @@
+/**
+ * @fileoverview Componente principal del área de trabajo para resolución de ejercicios.
+ *
+ * RESPONSABILIDADES:
+ * - Renderiza enunciado del ejercicio con HTML sanitizado
+ * - Gestiona formulario de envío de attempts (código/texto)
+ * - Muestra panel de validación estructural con errores bloqueantes
+ * - Renderiza chat de feedback con IA (solo si validación pasa)
+ * - Historial de intentos previos del estudiante
+ *
+ * FLUJO DE RESOLUCIÓN:
+ * 1. Usuario lee enunciado y escribe solución en editor
+ * 2. Envía attempt -> AttemptSubmissionForm
+ * 3. Backend valida estructura -> StructuralValidationPanel
+ * 4. Si pasa: genera feedback LLM -> FeedbackChat
+ * 5. Usuario puede chatear con IA para aclaraciones
+ * 6. Usuario puede reintentar hasta completar
+ *
+ * VALIDACIÓN ESTRUCTURAL:
+ * - 'conceptual': Sin validación, feedback siempre disponible
+ * - 'command'/'dockerfile'/'compose': Requiere validación passed
+ * - Si falla validación: feedback LLM NO se muestra
+ *
+ * ESTADOS:
+ * - isCompleted: Al menos un attempt con completed=true
+ * - canShowFeedback: Determina si se renderiza el chat (depende de validación)
+ */
 'use client';
 import React from 'react';
 import type { Exercise } from '@/shared/api/schemas';

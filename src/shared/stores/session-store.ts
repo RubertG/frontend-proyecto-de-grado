@@ -1,3 +1,28 @@
+/**
+ * @fileoverview Store Zustand para gestionar la sesión del usuario autenticado.
+ *
+ * SINCRONIZACIÓN CON REACT QUERY:
+ * - Este store se sincroniza automáticamente con useUser() hook
+ * - useUser obtiene datos de /users/me y actualiza este store via setSession()
+ * - El store provee acceso inmediato al usuario en cualquier componente
+ *
+ * ESTADOS DE SESIÓN:
+ * - user=null, loggedOut=false: Estado inicial o cargando
+ * - user!=null, loggedOut=false: Usuario autenticado activo
+ * - user=null, loggedOut=true: Usuario cerró sesión explícitamente
+ * - refreshing=true: Re-fetch de datos de usuario en progreso
+ *
+ * USO TÍPICO:
+ * ```ts
+ * const { user, logOut } = useSessionStore();
+ * if (!user) return <LoginPrompt />;
+ * return <Dashboard user={user} />;
+ * ```
+ *
+ * IMPORTANTE:
+ * - NO modificar user directamente, usar setSession()
+ * - Llamar logOut() en lugar de clear() para logout explícito
+ */
 import { create } from 'zustand';
 import type { User } from '@/shared/api/schemas';
 

@@ -1,8 +1,39 @@
+/**
+ * @fileoverview Cliente HTTP centralizado con autenticación automática vía cookies.
+ *
+ * ARQUITECTURA:
+ * - Maneja automáticamente el token de autenticación desde cookies (servidor y cliente)
+ * - Valida respuestas con Zod schemas para garantizar type-safety
+ * - Implementa manejo robusto de errores con ApiError personalizado
+ * - Soporta modo 'swallowErrors' para diagnósticos sin romper el flujo
+ *
+ * FLUJO DE AUTENTICACIÓN:
+ * 1. Servidor (SSR/RSC): Lee cookie 'auth_token' desde next/headers
+ * 2. Cliente (CSR): Lee cookie 'auth_token' desde document.cookie
+ * 3. Token se inyecta automáticamente en header Authorization: Bearer
+ *
+ * USO TÍPICO:
+ * ```ts
+ * const data = await apiFetch('/users/me', { schema: UserSchema });
+ * // data es type-safe y validado por Zod
+ * ```
+ */
 import { API_BASE, DEFAULT_HEADERS, withAuthHeader } from '@/shared/config/api';
 import { z } from 'zod';
 
+/** Nombre de la cookie que almacena el token JWT */
 const AUTH_COOKIE = 'auth_token';
 
+/**
+ * Obtiene el token de autenticación desde cookies en contexto de servidor (SSR/RSC).
+ *
+ * IMPORTANTE:
+ * - Solo funciona en Server Components y API Routes de Next.js
+ * - Usa eval('require') para evitar errores de bundling en cliente
+ * - Maneja cookies async (Next.js 15+) y síncronas (Next.js 14-)
+ *
+ * @returns Token JWT o undefined si no existe o falla la lectura
+ */
 async function getServerCookieToken(): Promise<string | undefined> {
   try {
     const { cookies } = eval('require')('next/headers');
@@ -14,6 +45,16 @@ async function getServerCookieToken(): Promise<string | undefined> {
   }
 }
 
+/**
+ * Obtiene el token de autenticación desde cookies en contexto de cliente (CSR).
+ *
+ * VALIDACIONES:
+ * - Verifica que el token tenga longitud mínima de 10 caracteres
+ * - Previene uso de tokens corruptos o placeholder vacíos
+ * - Maneja parsing manual de document.cookie (formato: "key=value; key2=value2")
+ *
+ * @returns Token JWT o undefined si no existe, es inválido, o falla la lectura
+ */
 function getClientCookieToken(): string | undefined {
   try {
     if (typeof document === 'undefined') {
@@ -48,6 +89,24 @@ function getClientCookieToken(): string | undefined {
   }
 }
 
+/**
+ * Error personalizado para fallos de API con contexto completo.
+ *
+ * PROPIEDADES:
+ * - status: Código HTTP del error (401, 404, 500, etc.)
+ * - body: Respuesta del servidor (puede contener detalles del error)
+ *
+ * EJEMPLO DE MANEJO:
+ * ```ts
+ * try {
+ *   await apiFetch('/endpoint');
+ * } catch (err) {
+ *   if (err instanceof ApiError && err.status === 401) {
+ *     // Redirigir a login
+ *   }
+ * }
+ * ```
+ */
 export class ApiError extends Error {
   status: number;
   body: unknown;
@@ -68,6 +127,36 @@ async function parseJsonSafe(res: Response): Promise<unknown> {
   }
 }
 
+/**
+ * Función principal para hacer peticiones HTTP al backend con features avanzadas.
+ *
+ * CARACTERÍSTICAS:
+ * - Inyección automática de token desde cookies (servidor/cliente)
+ * - Validación type-safe con Zod schemas
+ * - Modo swallowErrors para diagnosticar fallos sin lanzar excepciones
+ * - Logging detallado de errores de validación Zod
+ *
+ * @template T - Tipo esperado de la respuesta (inferido del schema)
+ * @param input - Path relativo del endpoint (ej: '/users/me')
+ * @param init.schema - Zod schema para validar la respuesta
+ * @param init.token - Token manual (opcional, se lee de cookies por defecto)
+ * @param init.swallowErrors - Si true, devuelve objeto diagnóstico en vez de lanzar error
+ * @param init - Resto de opciones de fetch (method, body, headers, etc.)
+ *
+ * @returns Promesa con datos validados tipo T
+ * @throws {ApiError} Si la petición falla y swallowErrors=false
+ *
+ * @example
+ * // Con validación Zod
+ * const user = await apiFetch('/users/me', { schema: UserSchema });
+ *
+ * @example
+ * // Sin romper el flujo en errores
+ * const result = await apiFetch('/endpoint', { swallowErrors: true });
+ * if (result.__apiError) {
+ *   console.log('Falló:', result.status);
+ * }
+ */
 export async function apiFetch<T>(
   input: string,
   init: RequestInit & { schema?: z.ZodType<T>; token?: string; swallowErrors?: boolean } = {},

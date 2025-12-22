@@ -5,6 +5,7 @@
 ## 📋 Tabla de Contenidos
 
 - [Descripción General](#-descripción-general)
+- [🚀 Para Nuevos Desarrolladores](#-para-nuevos-desarrolladores)
 - [Tecnologías Principales](#-tecnologías-principales)
 - [Prerequisitos](#-prerequisitos)
 - [Instalación](#-instalación)
@@ -30,6 +31,41 @@
 ## 🎯 Descripción General
 
 Plataforma educativa con editor de texto enriquecido (Tiptap), consola de comandos (Monaco), y retroalimentación por IA. Incluye roles de estudiante y administrador con gestión completa de guías, ejercicios y métricas de progreso.
+
+---
+
+## 🚀 Para Nuevos Desarrolladores
+
+**¿Primera vez en el proyecto?** Lee estas guías en orden:
+
+1. **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** - 📖 **COMIENZA AQUÍ**
+   - Arquitectura completa del sistema
+   - Flujos principales explicados paso a paso
+   - Componentes críticos documentados
+   - Convenciones de código y mejores prácticas
+   - Setup inicial y estructura del proyecto
+
+2. **[LLM_SYSTEM.md](./LLM_SYSTEM.md)** - 🤖 Sistema de Evaluación con IA
+   - Cómo funciona el feedback automático
+   - Integración con APIs de LLM (Claude/GPT)
+   - Chat interactivo con contexto
+   - Troubleshooting y optimizaciones
+
+3. **[FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md)** - 🏗️ Arquitectura Detallada
+   - Decisiones de diseño
+   - Patrones de implementación
+   - Gestión de estado y data fetching
+
+4. **[ENDPOINTS_README.md](./ENDPOINTS_README.md)** - 🔌 Documentación de API
+   - Todos los endpoints del backend
+   - Schemas de request/response
+   - Ejemplos de uso
+
+**Archivos Clave para Explorar**:
+- `src/shared/api/http-client.ts` - Cliente HTTP con autenticación
+- `src/features/attempts/api/attempts-api.ts` - Sistema de evaluación
+- `src/shared/stores/*.ts` - Estado global (Zustand)
+- `src/features/auth/hooks/use-user.ts` - Autenticación
 
 ---
 
@@ -85,14 +121,22 @@ NEXT_PUBLIC_API_BASE=http://localhost:8000/api/v1  # Producción: https://api.tu
 ## 🚀 Comandos
 
 ```powershell
-pnpm dev        # Desarrollo con Turbopack (http://localhost:3000)
-pnpm build      # Build de producción
-pnpm start      # Servidor producción (requiere build previo)
-pnpm lint       # ESLint
-pnpm typecheck  # Validación TypeScript
+# Desarrollo
+pnpm dev          # Servidor dev con Turbopack (http://localhost:3000)
+
+# Build y producción
+pnpm build        # Build de producción
+pnpm start        # Servidor producción (requiere build previo)
+
+# Calidad de código
+pnpm lint         # ESLint check
+pnpm lint:fix     # ESLint auto-fix + remover imports no usados
+pnpm format       # Prettier format todo el código
+pnpm format:check # Verificar formato sin modificar
+pnpm typecheck    # Validación TypeScript sin build
 ```
 
-**Pre-commit hooks**: Husky ejecuta automáticamente Prettier + ESLint en cada commit.
+**Pre-commit hooks**: Husky ejecuta automáticamente `prettier --write` y `eslint --fix` en archivos modificados.
 
 ---
 
