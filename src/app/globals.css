@@ -1,7 +1,7 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @import '../styles/_variables.scss';
 @import '../styles/_keyframe-animations.scss';
-@import "tw-animate-css";
+@import 'tw-animate-css';
 @import '../styles/content/rich-content.scss';
 
 @custom-variant dark (&:is(.dark *));
@@ -78,10 +78,14 @@
 
 /* Base layer: asegura que el body use los tokens y las fronteras respeten border */
 @layer base {
-  * { border-color: hsl(var(--border)); }
-  body { background-color: hsl(var(--background)); color: hsl(var(--foreground)); }
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 }
-
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

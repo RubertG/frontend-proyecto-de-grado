@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import * as React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table';
 import { Badge } from '@/shared/ui/badge';
@@ -27,9 +27,8 @@ export function ExercisesAttemptsTable({ exercises }: Props) {
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return exercises;
-    return exercises.filter(e =>
-      e.title.toLowerCase().includes(q) ||
-      e.type.toLowerCase().includes(q)
+    return exercises.filter(
+      (e) => e.title.toLowerCase().includes(q) || e.type.toLowerCase().includes(q),
     );
   }, [exercises, query]);
 
@@ -45,7 +44,7 @@ export function ExercisesAttemptsTable({ exercises }: Props) {
           <Input
             placeholder="Filtrar por título o tipo..."
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             className="h-8 text-xs"
           />
         </div>
@@ -67,24 +66,37 @@ export function ExercisesAttemptsTable({ exercises }: Props) {
           <TableBody>
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-6 text-muted-foreground text-sm">Sin resultados</TableCell>
+                <TableCell colSpan={8} className="text-center py-6 text-muted-foreground text-sm">
+                  Sin resultados
+                </TableCell>
               </TableRow>
             )}
-            {filtered.map(ex => (
+            {filtered.map((ex) => (
               <TableRow key={ex.id} data-state={!ex.is_active ? 'inactive' : undefined}>
                 <TableCell>
                   <div className="flex flex-col gap-0.5">
                     <span className="font-medium text-sm leading-tight">{ex.title}</span>
-                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{ex.id}</span>
+                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                      {ex.id}
+                    </span>
                   </div>
                 </TableCell>
-                <TableCell className="text-[11px] font-mono truncate max-w-[140px]" title={ex.guide_id}>{ex.guide_id}</TableCell>
+                <TableCell
+                  className="text-[11px] font-mono truncate max-w-[140px]"
+                  title={ex.guide_id}
+                >
+                  {ex.guide_id}
+                </TableCell>
                 <TableCell className="text-sm">{ex.type}</TableCell>
                 <TableCell className="text-sm">{ex.difficulty || '-'}</TableCell>
-                <TableCell className="text-sm">{ex.enable_structural_validation ? 'Sí':'No'}</TableCell>
-                <TableCell className="text-sm">{ex.enable_llm_feedback ? 'Sí':'No'}</TableCell>
                 <TableCell className="text-sm">
-                  <Badge variant={ex.is_active ? 'default' : 'secondary'}>{ex.is_active ? 'Activo' : 'Inactivo'}</Badge>
+                  {ex.enable_structural_validation ? 'Sí' : 'No'}
+                </TableCell>
+                <TableCell className="text-sm">{ex.enable_llm_feedback ? 'Sí' : 'No'}</TableCell>
+                <TableCell className="text-sm">
+                  <Badge variant={ex.is_active ? 'default' : 'secondary'}>
+                    {ex.is_active ? 'Activo' : 'Inactivo'}
+                  </Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">

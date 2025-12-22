@@ -11,5 +11,5 @@ export const useUiStore = create<UiState>((set, get) => ({
   isSidebarOpen: false,
   isChatOpen: false,
   toggleSidebar: () => set({ isSidebarOpen: !get().isSidebarOpen }),
-  toggleChat: () => set({ isChatOpen: !get().isChatOpen })
+  toggleChat: () => set({ isChatOpen: !get().isChatOpen }),
 }));

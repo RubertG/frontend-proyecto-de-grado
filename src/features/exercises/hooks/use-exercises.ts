@@ -1,9 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/shared/api/query-keys';
-import { fetchExercisesByGuide, fetchExercise, fetchExercisesAll, createExercise, updateExercise, deleteExercise, fetchExercisesWithProgress, type CreateExerciseInput, type UpdateExerciseInput } from '../api/exercises-api';
+import {
+  fetchExercisesByGuide,
+  fetchExercise,
+  fetchExercisesAll,
+  createExercise,
+  updateExercise,
+  deleteExercise,
+  fetchExercisesWithProgress,
+  type CreateExerciseInput,
+  type UpdateExerciseInput,
+} from '../api/exercises-api';
 
 export function useExercisesByGuideQuery(guideId: string) {
-  return useQuery({ queryKey: queryKeys.exercisesByGuide(guideId), queryFn: () => fetchExercisesByGuide(guideId), enabled: !!guideId });
+  return useQuery({
+    queryKey: queryKeys.exercisesByGuide(guideId),
+    queryFn: () => fetchExercisesByGuide(guideId),
+    enabled: !!guideId,
+  });
 }
 
 // Versión optimizada que incluye progreso (completed, attempts_count) en una sola llamada.
@@ -17,7 +31,11 @@ export function useExercisesWithProgressQuery(guideId: string, userId?: string |
 }
 
 export function useExerciseQuery(id: string) {
-  return useQuery({ queryKey: queryKeys.exerciseDetail(id), queryFn: () => fetchExercise(id), enabled: !!id });
+  return useQuery({
+    queryKey: queryKeys.exerciseDetail(id),
+    queryFn: () => fetchExercise(id),
+    enabled: !!id,
+  });
 }
 
 export function useExercisesAllQuery() {
@@ -31,7 +49,7 @@ export function useCreateExerciseMutation() {
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: queryKeys.exercisesByGuide(data.guide_id) });
       qc.invalidateQueries({ queryKey: queryKeys.exercisesAll() });
-    }
+    },
   });
 }
 
@@ -43,7 +61,7 @@ export function useUpdateExerciseMutation(id: string, guideId: string) {
       qc.invalidateQueries({ queryKey: queryKeys.exerciseDetail(id) });
       qc.invalidateQueries({ queryKey: queryKeys.exercisesByGuide(guideId) });
       qc.invalidateQueries({ queryKey: queryKeys.exercisesAll() });
-    }
+    },
   });
 }
 
@@ -54,6 +72,6 @@ export function useDeleteExerciseMutation(guideId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.exercisesByGuide(guideId) });
       qc.invalidateQueries({ queryKey: queryKeys.exercisesAll() });
-    }
+    },
   });
 }

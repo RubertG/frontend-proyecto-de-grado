@@ -1,9 +1,6 @@
 export async function diagnoseSupabase(baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL) {
   if (!baseUrl) return { ok: false, reason: 'missing-url' } as const;
-  const endpoints = [
-    '/auth/v1/health',
-    '/auth/v1/settings'
-  ];
+  const endpoints = ['/auth/v1/health', '/auth/v1/settings'];
   const results: Record<string, { ok: boolean; status?: number; error?: string }> = {};
   for (const ep of endpoints) {
     try {
@@ -13,5 +10,5 @@ export async function diagnoseSupabase(baseUrl = process.env.NEXT_PUBLIC_SUPABAS
       results[ep] = { ok: false, error: (e as Error).message };
     }
   }
-  return { ok: Object.values(results).some(r => r.ok), results };
+  return { ok: Object.values(results).some((r) => r.ok), results };
 }

@@ -5,8 +5,13 @@ export default function Home() {
   return (
     <main className="max-w-5xl mx-auto">
       <section className="text-center py-10 md:py-16 space-y-6">
-        <h1 className="text-3xl md:text-5xl font-bold tracking-tight">Aprende DevOps guiado y con feedback inteligente</h1>
-        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">Explora guías estructuradas, resuelve ejercicios prácticos y recibe retroalimentación asistida por IA para acelerar tu aprendizaje.</p>
+        <h1 className="text-3xl md:text-5xl font-bold tracking-tight">
+          Aprende DevOps guiado y con feedback inteligente
+        </h1>
+        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+          Explora guías estructuradas, resuelve ejercicios prácticos y recibe retroalimentación
+          asistida por IA para acelerar tu aprendizaje.
+        </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button asChild size="lg">
             <Link href="/guias">Explorar guías</Link>
@@ -21,9 +26,11 @@ export default function Home() {
           { title: 'Contenido estructurado', desc: 'Guías curadas por tema y nivel.' },
           { title: 'Ejercicios prácticos', desc: 'Casos reales y validación automática.' },
           { title: 'Feedback inteligente', desc: 'Asistencia contextual y análisis.' },
-        ].map(f => (
+        ].map((f) => (
           <div key={f.title} className="border rounded-lg p-4 bg-card">
-            <h3 className="font-semibold mb-1 text-sm tracking-wide uppercase text-muted-foreground">{f.title}</h3>
+            <h3 className="font-semibold mb-1 text-sm tracking-wide uppercase text-muted-foreground">
+              {f.title}
+            </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
           </div>
         ))}

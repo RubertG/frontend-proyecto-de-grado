@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -33,14 +33,17 @@ export function AdminResponsiveNav() {
             <SheetTitle>Administración</SheetTitle>
           </SheetHeader>
           <nav className="flex-1 overflow-y-auto py-2">
-            {navItems.map(item => {
+            {navItems.map((item) => {
               const active = pathname.startsWith(item.href);
               return (
                 <Button
                   key={item.href}
                   asChild
                   variant={active ? 'secondary' : 'ghost'}
-                  className={cn('w-full justify-start rounded-none px-6 text-left font-normal', active && 'font-semibold')}
+                  className={cn(
+                    'w-full justify-start rounded-none px-6 text-left font-normal',
+                    active && 'font-semibold',
+                  )}
                   onClick={() => setOpen(false)}
                 >
                   <Link href={item.href}>{item.label}</Link>

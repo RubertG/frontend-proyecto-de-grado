@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,14 +10,56 @@ import { LogOut, LayoutDashboard, User as UserIcon } from 'lucide-react';
 import { supabaseBrowser } from '@/shared/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/shared/ui/button';
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/shared/ui/breadcrumb';
-import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarHeader, SidebarInset, SidebarTrigger, SidebarFooter, SidebarRail, SidebarSeparator } from '@/shared/ui/sidebar';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from '@/shared/ui/dropdown-menu';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from '@/shared/ui/breadcrumb';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarHeader,
+  SidebarInset,
+  SidebarTrigger,
+  SidebarFooter,
+  SidebarRail,
+  SidebarSeparator,
+} from '@/shared/ui/sidebar';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from '@/shared/ui/dropdown-menu';
 import { GuidesSidebarItems } from '../guides-sidebar-items';
 
-interface GuidesShellProps { guides: { id: string; title: string; order: number; is_active?: boolean | null; topic?: string | null }[]; children: React.ReactNode; activeGuideId?: string | null }
+interface GuidesShellProps {
+  guides: {
+    id: string;
+    title: string;
+    order: number;
+    is_active?: boolean | null;
+    topic?: string | null;
+  }[];
+  children: React.ReactNode;
+  activeGuideId?: string | null;
+}
 
-export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp }: GuidesShellProps) {
+export function GuidesShell({
+  guides,
+  children,
+  activeGuideId: activeGuideIdProp,
+}: GuidesShellProps) {
   const pathname = usePathname();
   const { user, logOut } = useSessionStore();
   const qc = useQueryClient();
@@ -26,19 +68,22 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
   const [derivedGuideId, setDerivedGuideId] = useState<string | null>(activeGuideIdProp ?? null);
   const [exerciseTitle, setExerciseTitle] = useState<string | null>(null);
 
-
   // Derivar guideId cuando estamos en /ejercicios/[exerciseId]
   React.useEffect(() => {
-    if (activeGuideIdProp) { setDerivedGuideId(activeGuideIdProp); }
+    if (activeGuideIdProp) {
+      setDerivedGuideId(activeGuideIdProp);
+    }
     if (!pathname.startsWith('/ejercicios/')) return;
     const parts = pathname.split('/');
     const exerciseId = parts[2];
     if (!exerciseId || exerciseId.length < 10) return;
-    import('@/features/exercises/api/exercises-api').then(m => {
-      m.fetchExercise(exerciseId).then(ex => {
-        if (ex?.guide_id) setDerivedGuideId(ex.guide_id);
-        if (ex?.title) setExerciseTitle(ex.title);
-      }).catch(() => {});
+    import('@/features/exercises/api/exercises-api').then((m) => {
+      m.fetchExercise(exerciseId)
+        .then((ex) => {
+          if (ex?.guide_id) setDerivedGuideId(ex.guide_id);
+          if (ex?.title) setExerciseTitle(ex.title);
+        })
+        .catch(() => {});
     });
   }, [pathname, activeGuideIdProp]);
 
@@ -47,10 +92,14 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
     setLoggingOut(true);
     try {
       await supabaseBrowser.auth.signOut();
-      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+      } catch {}
       qc.clear();
       logOut();
-      try { router.refresh(); } catch {}
+      try {
+        router.refresh();
+      } catch {}
       toast.success('Sesión cerrada');
     } catch {
       toast.error('Error cerrando sesión');
@@ -65,11 +114,11 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
   breadcrumb.push({ href: '/guias', label: 'Guías', current: pathname === '/guias' });
   if (pathname.startsWith('/guias/') && pathname !== '/guias') {
     const guideId = pathname.split('/')[2];
-    const guide = guides.find(g => g.id === guideId);
+    const guide = guides.find((g) => g.id === guideId);
     breadcrumb.push({ href: `/guias/${guideId}`, label: guide?.title || 'Guía', current: true });
   } else if (pathname.startsWith('/ejercicios/')) {
     if (derivedGuideId) {
-      const guide = guides.find(g => g.id === derivedGuideId);
+      const guide = guides.find((g) => g.id === derivedGuideId);
       if (guide) breadcrumb.push({ href: `/guias/${guide.id}`, label: guide.title });
     }
     breadcrumb.push({ label: exerciseTitle || 'Ejercicio', current: true });
@@ -81,14 +130,17 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
         <div className="flex flex-1 min-h-0">
           <Sidebar variant="sidebar" collapsible="icon">
             <SidebarHeader>
-                <SidebarTrigger className='ml-0.5' />
+              <SidebarTrigger className="ml-0.5" />
             </SidebarHeader>
             <SidebarContent>
               <SidebarGroup>
                 <SidebarGroupLabel>Listado</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    <GuidesSidebarItems guides={guides} activeGuideId={derivedGuideId ?? undefined} />
+                    <GuidesSidebarItems
+                      guides={guides}
+                      activeGuideId={derivedGuideId ?? undefined}
+                    />
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
@@ -98,11 +150,18 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="w-full justify-start gap-2 px-2! text-sm">
                     <UserIcon className="h-4 w-4" />
-                    <span className="truncate group-data-[collapsible=icon]:hidden" suppressHydrationWarning>{user?.name || user?.email || 'Usuario'}</span>
+                    <span
+                      className="truncate group-data-[collapsible=icon]:hidden"
+                      suppressHydrationWarning
+                    >
+                      {user?.name || user?.email || 'Usuario'}
+                    </span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" side="top" className="w-56">
-                  <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Sesión</DropdownMenuLabel>
+                  <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                    Sesión
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {user?.role === 'admin' && (
                     <DropdownMenuItem asChild className="gap-2 cursor-pointer">
@@ -114,7 +173,10 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
                   )}
                   {user ? (
                     <DropdownMenuItem
-                      onClick={(e) => { e.preventDefault(); handleLogout(); }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleLogout();
+                      }}
                       disabled={loggingOut}
                       className="gap-2 cursor-pointer"
                     >
@@ -123,7 +185,10 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
                     </DropdownMenuItem>
                   ) : (
                     <DropdownMenuItem asChild className="gap-2 cursor-pointer">
-                      <Link href="/autenticacion/iniciar-sesion" className="flex items-center gap-2">
+                      <Link
+                        href="/autenticacion/iniciar-sesion"
+                        className="flex items-center gap-2"
+                      >
                         <span>Iniciar sesión</span>
                       </Link>
                     </DropdownMenuItem>
@@ -151,7 +216,9 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
                             {isLast || b.current ? (
                               <BreadcrumbPage>{b.label}</BreadcrumbPage>
                             ) : (
-                              <BreadcrumbLink asChild><Link href={b.href || '#'}>{b.label}</Link></BreadcrumbLink>
+                              <BreadcrumbLink asChild>
+                                <Link href={b.href || '#'}>{b.label}</Link>
+                              </BreadcrumbLink>
                             )}
                           </BreadcrumbItem>
                         </React.Fragment>
@@ -161,9 +228,7 @@ export function GuidesShell({ guides, children, activeGuideId: activeGuideIdProp
                 </Breadcrumb>
               </div>
             </header>
-            <main className="flex-1 min-w-0 px-4 md:px-6 pb-6 pt-0">
-              {children}
-            </main>
+            <main className="flex-1 min-w-0 px-4 md:px-6 pb-6 pt-0">{children}</main>
           </SidebarInset>
         </div>
       </div>

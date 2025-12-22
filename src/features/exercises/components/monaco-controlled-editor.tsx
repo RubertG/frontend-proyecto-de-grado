@@ -1,9 +1,11 @@
-"use client";
+'use client';
 import React from 'react';
 import type * as MonacoNS from 'monaco-editor';
 import dynamic from 'next/dynamic';
 
-const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
+const MonacoEditor = dynamic(() => import('@monaco-editor/react').then((m) => m.default), {
+  ssr: false,
+});
 
 export interface MonacoControlledEditorProps {
   value: string;
@@ -14,9 +16,17 @@ export interface MonacoControlledEditorProps {
   placeholder?: string;
 }
 
-export interface MonacoControlledEditorHandle { focus: () => void }
+export interface MonacoControlledEditorHandle {
+  focus: () => void;
+}
 
-export const MonacoControlledEditor = React.forwardRef<MonacoControlledEditorHandle, MonacoControlledEditorProps>(function MonacoControlledEditorFn({ value, onChange, language='plaintext', height=220, className, placeholder }, ref) {
+export const MonacoControlledEditor = React.forwardRef<
+  MonacoControlledEditorHandle,
+  MonacoControlledEditorProps
+>(function MonacoControlledEditorFn(
+  { value, onChange, language = 'plaintext', height = 220, className, placeholder },
+  ref,
+) {
   const editorRef = React.useRef<MonacoNS.editor.IStandaloneCodeEditor | null>(null);
   const handleChange = (val?: string) => {
     onChange(val ?? '');
@@ -26,11 +36,15 @@ export const MonacoControlledEditor = React.forwardRef<MonacoControlledEditorHan
     if (typeof ref === 'function') {
       ref({ focus: () => editor.focus() });
     } else if (ref) {
-      (ref as React.MutableRefObject<MonacoControlledEditorHandle | null>).current = { focus: () => editor.focus() };
+      (ref as React.MutableRefObject<MonacoControlledEditorHandle | null>).current = {
+        focus: () => editor.focus(),
+      };
     }
   };
   return (
-    <div className={"relative rounded-md border overflow-hidden bg-background " + (className || '')}>
+    <div
+      className={'relative rounded-md border overflow-hidden bg-background ' + (className || '')}
+    >
       <MonacoEditor
         height={height}
         defaultLanguage={language}
@@ -52,7 +66,9 @@ export const MonacoControlledEditor = React.forwardRef<MonacoControlledEditorHan
         theme="vs-dark"
       />
       {placeholder && !value && (
-        <div className="text-xs text-muted-foreground absolute m-2 pointer-events-none select-none">{placeholder}</div>
+        <div className="text-xs text-muted-foreground absolute m-2 pointer-events-none select-none">
+          {placeholder}
+        </div>
       )}
     </div>
   );

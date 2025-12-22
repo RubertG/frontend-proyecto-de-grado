@@ -33,13 +33,23 @@ export const useExerciseRuntimeStore = create<ExerciseRuntimeState>((set) => ({
   isGeneratingFeedback: false,
   structuralValidation: { status: 'idle', errors: [] },
   attemptSnapshot: null,
-  setExercise: (id) => set({ exerciseId: id, attemptId: null, structuralValidation: { status: 'idle', errors: [] } }),
+  setExercise: (id) =>
+    set({ exerciseId: id, attemptId: null, structuralValidation: { status: 'idle', errors: [] } }),
   setAttempt: (id) => set({ attemptId: id }),
   setAttemptSnapshot: (a) => set({ attemptSnapshot: a }),
   setSubmitting: (v) => set({ isSubmitting: v }),
   setGenerating: (v) => set({ isGeneratingFeedback: v }),
   markValidationPassed: () => set({ structuralValidation: { status: 'passed', errors: [] } }),
-  markValidationFailed: (message, errors) => set({ structuralValidation: { status: 'failed', message, errors: [...errors] } }),
+  markValidationFailed: (message, errors) =>
+    set({ structuralValidation: { status: 'failed', message, errors: [...errors] } }),
   resetValidation: () => set({ structuralValidation: { status: 'idle', errors: [] } }),
-  reset: () => set({ exerciseId: null, attemptId: null, isSubmitting: false, isGeneratingFeedback: false, structuralValidation: { status: 'idle', errors: [] }, attemptSnapshot: null })
+  reset: () =>
+    set({
+      exerciseId: null,
+      attemptId: null,
+      isSubmitting: false,
+      isGeneratingFeedback: false,
+      structuralValidation: { status: 'idle', errors: [] },
+      attemptSnapshot: null,
+    }),
 }));

@@ -124,10 +124,8 @@
 
   /* Shadows Light */
   --tt-shadow-elevated-md:
-    0px 16px 48px 0px rgba(17, 24, 39, 0.04),
-    0px 12px 24px 0px rgba(17, 24, 39, 0.04),
-    0px 6px 8px 0px rgba(17, 24, 39, 0.02),
-    0px 2px 3px 0px rgba(17, 24, 39, 0.02);
+    0px 16px 48px 0px rgba(17, 24, 39, 0.04), 0px 12px 24px 0px rgba(17, 24, 39, 0.04),
+    0px 6px 8px 0px rgba(17, 24, 39, 0.02), 0px 2px 3px 0px rgba(17, 24, 39, 0.02);
 
   /************************************************** 
        Radius variables 
@@ -160,7 +158,6 @@
   --tt-accent-contrast: 8%;
   --tt-destructive-contrast: 8%;
   --tt-foreground-contrast: 8%;
-
 }
 
 :root {

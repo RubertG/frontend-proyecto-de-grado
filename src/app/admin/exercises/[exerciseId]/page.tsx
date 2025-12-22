@@ -23,7 +23,11 @@ interface ExerciseDetailShape {
   updated_at?: string | null;
 }
 
-export default async function ExerciseViewPage({ params }: { params: Promise<{ exerciseId: string }> }) {
+export default async function ExerciseViewPage({
+  params,
+}: {
+  params: Promise<{ exerciseId: string }>;
+}) {
   const { exerciseId } = await params;
   let exercise: ExerciseDetailShape | null = null;
   try {
@@ -46,46 +50,90 @@ export default async function ExerciseViewPage({ params }: { params: Promise<{ e
               <DifficultyBadge difficulty={exercise.difficulty} />
               {exercise.difficulty && <Badge variant="outline" className="hidden" />}
             </div>
-            <Badge className="text-xs" variant={exercise.enable_structural_validation ? 'default' : 'secondary'}>
+            <Badge
+              className="text-xs"
+              variant={exercise.enable_structural_validation ? 'default' : 'secondary'}
+            >
               Val. estructural: {exercise.enable_structural_validation ? 'Activo' : 'Inactivo'}
             </Badge>
-            <Badge className="text-xs" variant={exercise.enable_llm_feedback ? 'default' : 'secondary'}>
+            <Badge
+              className="text-xs"
+              variant={exercise.enable_llm_feedback ? 'default' : 'secondary'}
+            >
               Feedback LLM: {exercise.enable_llm_feedback ? 'Activo' : 'Inactivo'}
             </Badge>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="secondary"><Link href={`/admin/exercises/${exercise.id}/edit`}>Editar</Link></Button>
-          <Button asChild variant="outline"><Link href="/admin/exercises">Volver</Link></Button>
+          <Button asChild variant="secondary">
+            <Link href={`/admin/exercises/${exercise.id}/edit`}>Editar</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/admin/exercises">Volver</Link>
+          </Button>
         </div>
       </div>
       <div className="space-y-6 max-w-4xl">
         {exercise.content_html && (
           <div className="space-y-2">
-            <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Contenido</h2>
-            <div className="prose prose-sm dark:prose-invert rich-content max-w-none" style={{ maxHeight: '480px', overflowY: 'auto' }} dangerouslySetInnerHTML={{ __html: exercise.content_html }} />
+            <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              Contenido
+            </h2>
+            <div
+              className="prose prose-sm dark:prose-invert rich-content max-w-none"
+              style={{ maxHeight: '480px', overflowY: 'auto' }}
+              dangerouslySetInnerHTML={{ __html: exercise.content_html }}
+            />
           </div>
         )}
         {exercise.ai_context && (
           <div className="space-y-2">
-            <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Contexto LLM</h2>
+            <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              Contexto LLM
+            </h2>
             <ReadOnlyCode value={exercise.ai_context} language="markdown" autoHeight />
           </div>
         )}
         {exercise.expected_answer && (
           <div className="space-y-2">
-            <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Respuesta esperada</h2>
-            <ReadOnlyCode value={exercise.expected_answer} language={exercise.type === 'dockerfile' ? 'dockerfile' : 
-                                                                     exercise.type === 'command' ? 'shell' : 
-                                                                     exercise.type === 'compose' ? 'yaml' : 'plaintext'} autoHeight maxAutoHeight={480} />
+            <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              Respuesta esperada
+            </h2>
+            <ReadOnlyCode
+              value={exercise.expected_answer}
+              language={
+                exercise.type === 'dockerfile'
+                  ? 'dockerfile'
+                  : exercise.type === 'command'
+                    ? 'shell'
+                    : exercise.type === 'compose'
+                      ? 'yaml'
+                      : 'plaintext'
+              }
+              autoHeight
+              maxAutoHeight={480}
+            />
           </div>
         )}
         {exercise.sample_solution && (
           <div className="space-y-2">
-            <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Solución de muestra</h2>
-            <ReadOnlyCode value={exercise.sample_solution} language={exercise.type === 'dockerfile' ? 'dockerfile' : 
-                                                                     exercise.type === 'command' ? 'shell' : 
-                                                                     exercise.type === 'compose' ? 'yaml' : 'plaintext'} autoHeight maxAutoHeight={9999} />
+            <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              Solución de muestra
+            </h2>
+            <ReadOnlyCode
+              value={exercise.sample_solution}
+              language={
+                exercise.type === 'dockerfile'
+                  ? 'dockerfile'
+                  : exercise.type === 'command'
+                    ? 'shell'
+                    : exercise.type === 'compose'
+                      ? 'yaml'
+                      : 'plaintext'
+              }
+              autoHeight
+              maxAutoHeight={9999}
+            />
           </div>
         )}
       </div>

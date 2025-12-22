@@ -29,7 +29,12 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   refreshing: false,
   setRefreshing: (refreshing) => {
     const currentState = get();
-    console.log('[SessionStore] Setting refreshing:', refreshing, 'current user:', currentState.user?.email || 'none');
+    console.log(
+      '[SessionStore] Setting refreshing:',
+      refreshing,
+      'current user:',
+      currentState.user?.email || 'none',
+    );
     set({ refreshing });
-  }
+  },
 }));

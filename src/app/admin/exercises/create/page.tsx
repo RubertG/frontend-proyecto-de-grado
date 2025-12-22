@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,7 +15,14 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
-import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/shared/ui/command';
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from '@/shared/ui/command';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { useGuidesQuery } from '@/features/guides/hooks/use-guides';
@@ -26,11 +33,11 @@ const schema = z.object({
   content_html: z.string().optional(),
   expected_answer: z.string().min(1),
   ai_context: z.string().optional(),
-  type: z.enum(['command','dockerfile','conceptual','compose']),
+  type: z.enum(['command', 'dockerfile', 'conceptual', 'compose']),
   difficulty: z.string().optional(),
   enable_structural_validation: z.boolean().default(true),
   enable_llm_feedback: z.boolean().default(true),
-  is_active: z.boolean().optional()
+  is_active: z.boolean().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -38,7 +45,7 @@ type FormValues = z.infer<typeof schema>;
 export default function CreateExercisePage() {
   const [openGuides, setOpenGuides] = useState(false);
   const { data: guidesData } = useGuidesQuery();
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -51,8 +58,8 @@ export default function CreateExercisePage() {
       difficulty: '',
       enable_structural_validation: true,
       enable_llm_feedback: true,
-      is_active: true
-    }
+      is_active: true,
+    },
   });
   const { handleSubmit } = form;
   const mutation = useCreateExerciseMutation();
@@ -60,8 +67,11 @@ export default function CreateExercisePage() {
 
   function onSubmit(values: FormValues) {
     mutation.mutate(values, {
-      onSuccess: () => { toast.success('Ejercicio creado'); router.push('/admin/exercises'); },
-      onError: () => toast.error('Error al crear ejercicio')
+      onSuccess: () => {
+        toast.success('Ejercicio creado');
+        router.push('/admin/exercises');
+      },
+      onError: () => toast.error('Error al crear ejercicio'),
     });
   }
 
@@ -82,14 +92,12 @@ export default function CreateExercisePage() {
                       <Button
                         variant="outline"
                         role="combobox"
-                        className={cn(
-                          "justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
+                        className={cn('justify-between', !field.value && 'text-muted-foreground')}
                       >
                         {field.value
-                          ? guidesData?.find(guide => guide.id === field.value)?.title || "Guía seleccionada"
-                          : "Seleccionar guía..."}
+                          ? guidesData?.find((guide) => guide.id === field.value)?.title ||
+                            'Guía seleccionada'
+                          : 'Seleccionar guía...'}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </FormControl>
@@ -105,21 +113,23 @@ export default function CreateExercisePage() {
                               value={`${guide.title} ${guide.topic || ''}`}
                               key={guide.id}
                               onSelect={() => {
-                                field.onChange(guide.id)
-                                setOpenGuides(false)
+                                field.onChange(guide.id);
+                                setOpenGuides(false);
                               }}
                             >
                               <Check
                                 className={cn(
-                                  "mr-2 h-4 w-4",
-                                  guide.id === field.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
+                                  'mr-2 h-4 w-4',
+                                  guide.id === field.value ? 'opacity-100' : 'opacity-0',
                                 )}
                               />
                               <div className="flex flex-col">
                                 <span className="font-medium">{guide.title}</span>
-                                {guide.topic && <span className="text-xs text-muted-foreground">{guide.topic}</span>}
+                                {guide.topic && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {guide.topic}
+                                  </span>
+                                )}
                               </div>
                             </CommandItem>
                           ))}
@@ -156,9 +166,15 @@ export default function CreateExercisePage() {
                     <MonacoControlledEditor
                       value={field.value || ''}
                       onChange={field.onChange}
-                      language={form.getValues('type') === 'dockerfile' ? 'dockerfile' : 
-                               form.getValues('type') === 'command' ? 'shell' : 
-                               form.getValues('type') === 'compose' ? 'yaml' : 'plaintext'}
+                      language={
+                        form.getValues('type') === 'dockerfile'
+                          ? 'dockerfile'
+                          : form.getValues('type') === 'command'
+                            ? 'shell'
+                            : form.getValues('type') === 'compose'
+                              ? 'yaml'
+                              : 'plaintext'
+                      }
                     />
                   </div>
                 </FormControl>
@@ -223,7 +239,9 @@ export default function CreateExercisePage() {
                 <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2">
                   <div className="space-y-0.5">
                     <FormLabel className="text-sm">Validación estructural</FormLabel>
-                    <p className="text-xs text-muted-foreground">Compara estructura vs solución esperada</p>
+                    <p className="text-xs text-muted-foreground">
+                      Compara estructura vs solución esperada
+                    </p>
                   </div>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -256,7 +274,9 @@ export default function CreateExercisePage() {
                   <FormLabel className="text-sm">Estado</FormLabel>
                   <p className="text-xs text-muted-foreground">Activo / Inactivo</p>
                 </div>
-                <FormControl><Switch checked={field.value ?? true} onCheckedChange={field.onChange} /></FormControl>
+                <FormControl>
+                  <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
+                </FormControl>
               </FormItem>
             )}
           />
@@ -277,14 +297,22 @@ export default function CreateExercisePage() {
           />
           <div className="flex gap-2">
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending && <span className="animate-spin size-4 border-2 border-current border-t-transparent rounded-full" />}
+              {mutation.isPending && (
+                <span className="animate-spin size-4 border-2 border-current border-t-transparent rounded-full" />
+              )}
               Crear
             </Button>
-            <Button type="button" variant="secondary" onClick={()=>router.back()} disabled={mutation.isPending}>Cancelar</Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => router.back()}
+              disabled={mutation.isPending}
+            >
+              Cancelar
+            </Button>
           </div>
         </form>
       </Form>
     </div>
   );
 }
-                    

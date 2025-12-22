@@ -1,26 +1,33 @@
-"use client";
+'use client';
 import React from 'react';
 import { cn } from '@/shared/lib/utils';
 import { Badge } from '@/shared/ui/badge';
 
 // Mapeo de estilos de fondo/texto conservando los colores originales
-const TYPE_STYLE: Record<string,string> = {
+const TYPE_STYLE: Record<string, string> = {
   command: 'bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-200',
   dockerfile: 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-200',
   conceptual: 'bg-violet-50 text-violet-700 dark:bg-violet-500/15 dark:text-violet-200',
-  compose: 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-200'
+  compose: 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-200',
 };
 
 const DIFFICULTY_STYLE = {
   easy: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-200',
   medium: 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-200',
   hard: 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-200',
-  default: 'bg-muted text-muted-foreground'
+  default: 'bg-muted text-muted-foreground',
 };
 
-interface CommonProps { className?: string; size?: 'sm' | 'xs' }
+interface CommonProps {
+  className?: string;
+  size?: 'sm' | 'xs';
+}
 
-export const TypeBadge: React.FC<{ type?: string | null } & CommonProps> = ({ type, className, size='sm' }) => {
+export const TypeBadge: React.FC<{ type?: string | null } & CommonProps> = ({
+  type,
+  className,
+  size = 'sm',
+}) => {
   if (!type) return null;
   const key = type.toLowerCase();
   const colorClasses = TYPE_STYLE[key] || 'bg-muted text-muted-foreground';
@@ -33,7 +40,7 @@ export const TypeBadge: React.FC<{ type?: string | null } & CommonProps> = ({ ty
         'uppercase tracking-wide font-medium rounded-full border-0 shadow-none',
         colorClasses,
         sizing,
-        className
+        className,
       )}
     >
       {type}
@@ -41,9 +48,16 @@ export const TypeBadge: React.FC<{ type?: string | null } & CommonProps> = ({ ty
   );
 };
 
-export const DifficultyBadge: React.FC<{ difficulty?: string | null } & CommonProps> = ({ difficulty, className, size='sm' }) => {
+export const DifficultyBadge: React.FC<{ difficulty?: string | null } & CommonProps> = ({
+  difficulty,
+  className,
+  size = 'sm',
+}) => {
   if (!difficulty) return null;
-  const raw = difficulty.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'');
+  const raw = difficulty
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '');
   let styleKey: keyof typeof DIFFICULTY_STYLE = 'default';
   if (raw.startsWith('facil') || raw === 'easy') styleKey = 'easy';
   else if (raw.startsWith('med') || raw === 'medium') styleKey = 'medium';
@@ -57,7 +71,7 @@ export const DifficultyBadge: React.FC<{ difficulty?: string | null } & CommonPr
         'capitalize font-medium rounded-full border-0 shadow-none',
         colorClasses,
         sizing,
-        className
+        className,
       )}
     >
       {difficulty}

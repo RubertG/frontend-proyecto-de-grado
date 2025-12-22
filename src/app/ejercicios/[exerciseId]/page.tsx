@@ -4,7 +4,9 @@ import { ExerciseWorkArea } from '@/features/exercises/components/student/exerci
 
 export const dynamic = 'force-dynamic';
 
-interface Props { params: Promise<{ exerciseId: string }> | { exerciseId: string } }
+interface Props {
+  params: Promise<{ exerciseId: string }> | { exerciseId: string };
+}
 
 export default async function ExerciseDetailPage({ params }: Props) {
   const resolved = await params;

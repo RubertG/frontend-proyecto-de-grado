@@ -1,9 +1,11 @@
-"use client";
+'use client';
 import React from 'react';
 import dynamic from 'next/dynamic';
 
 // Carga dinámica sin SSR para Monaco dentro de un componente cliente
-const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
+const MonacoEditor = dynamic(() => import('@monaco-editor/react').then((m) => m.default), {
+  ssr: false,
+});
 
 export interface ReadOnlyCodeProps {
   value: string;
@@ -43,7 +45,7 @@ export function ReadOnlyCode({
   }, [autoHeight, displayValue, height, maxAutoHeight, minAutoHeight]);
 
   return (
-    <div className={"rounded-md border overflow-hidden bg-background " + (className || '')}>
+    <div className={'rounded-md border overflow-hidden bg-background ' + (className || '')}>
       <MonacoEditor
         height={computedHeight}
         defaultLanguage={language}

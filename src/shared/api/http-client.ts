@@ -5,9 +5,9 @@ const AUTH_COOKIE = 'auth_token';
 
 async function getServerCookieToken(): Promise<string | undefined> {
   try {
-    const { cookies } = eval('require')("next/headers");
+    const { cookies } = eval('require')('next/headers');
     const c = cookies();
-    const store = (typeof c?.then === 'function') ? await c : c;
+    const store = typeof c?.then === 'function' ? await c : c;
     return store?.get?.(AUTH_COOKIE)?.value;
   } catch {
     return undefined;
@@ -19,28 +19,28 @@ function getClientCookieToken(): string | undefined {
     if (typeof document === 'undefined') {
       return undefined;
     }
-    
+
     const allCookies = document.cookie;
-    
+
     if (!allCookies) {
       return undefined;
     }
-    
+
     // Buscar específicamente nuestra cookie
     const cookies = allCookies.split('; ');
-    const authCookie = cookies.find(cookie => cookie.trim().startsWith(`${AUTH_COOKIE}=`));
-    
+    const authCookie = cookies.find((cookie) => cookie.trim().startsWith(`${AUTH_COOKIE}=`));
+
     if (!authCookie) {
       return undefined;
     }
-    
+
     const cookieValue = authCookie.split('=')[1];
-    
+
     if (cookieValue && cookieValue.length < 10) {
       console.warn('[getClientCookieToken] Token too short, likely invalid:', cookieValue);
       return undefined;
     }
-    
+
     return cookieValue;
   } catch (error) {
     console.error('[getClientCookieToken] Error:', error);
@@ -61,14 +61,21 @@ export class ApiError extends Error {
 async function parseJsonSafe(res: Response): Promise<unknown> {
   const text = await res.text();
   if (!text) return null;
-  try { return JSON.parse(text); } catch { return text; }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
 }
 
-export async function apiFetch<T>(input: string, init: RequestInit & { schema?: z.ZodType<T>, token?: string, swallowErrors?: boolean } = {}): Promise<T> {
+export async function apiFetch<T>(
+  input: string,
+  init: RequestInit & { schema?: z.ZodType<T>; token?: string; swallowErrors?: boolean } = {},
+): Promise<T> {
   const { schema, token, swallowErrors, ...rest } = init;
   let effectiveToken: string | undefined = token;
   const isServer = typeof window === 'undefined';
-  
+
   if (!effectiveToken) {
     if (isServer) {
       effectiveToken = await getServerCookieToken();
@@ -77,18 +84,18 @@ export async function apiFetch<T>(input: string, init: RequestInit & { schema?: 
       effectiveToken = getClientCookieToken();
     }
   }
-  
+
   const headers = {
     ...DEFAULT_HEADERS,
     ...(rest.headers || {}),
-    ...withAuthHeader(effectiveToken)
+    ...withAuthHeader(effectiveToken),
   };
-  
+
   const res = await fetch(`${API_BASE}${input}`, {
     ...rest,
-    headers
+    headers,
   });
-  
+
   const data = await parseJsonSafe(res);
   if (!res.ok) {
     // Loguear el fallo con detalle
@@ -112,20 +119,22 @@ export async function apiFetch<T>(input: string, init: RequestInit & { schema?: 
         const issues = parsed.error.issues.map((i: z.ZodIssue) => ({
           path: i.path.join('.'),
           message: i.message,
-          code: i.code
+          code: i.code,
         }));
         // Truncar datos grandes
         const preview = (() => {
           try {
             const json = JSON.stringify(data);
             return json.length > 4000 ? json.slice(0, 4000) + '…(truncated)' : json;
-          } catch { return '[unserializable data]'; }
+          } catch {
+            return '[unserializable data]';
+          }
         })();
         console.error('[apiFetch] Zod parse error', {
           endpoint: input,
-            issues,
-            flat,
-            rawPreview: preview
+          issues,
+          flat,
+          rawPreview: preview,
         });
       } catch (logErr) {
         console.error('[apiFetch] Zod parse error (logging failed)', logErr);

@@ -1,11 +1,14 @@
-"use client";
+'use client';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Textarea } from '@/shared/ui/textarea';
-import { useExerciseQuery, useUpdateExerciseMutation } from '@/features/exercises/hooks/use-exercises';
+import {
+  useExerciseQuery,
+  useUpdateExerciseMutation,
+} from '@/features/exercises/hooks/use-exercises';
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
 import { MonacoControlledEditor } from '@/features/exercises/components/monaco-controlled-editor';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/shared/ui/select';
@@ -21,11 +24,11 @@ const schema = z.object({
   content_html: z.string().optional(),
   expected_answer: z.string().min(1).optional(),
   ai_context: z.string().optional(),
-  type: z.enum(['command','dockerfile','conceptual','compose']),
+  type: z.enum(['command', 'dockerfile', 'conceptual', 'compose']),
   difficulty: z.string().optional(),
   enable_structural_validation: z.boolean().default(true),
   enable_llm_feedback: z.boolean().default(true),
-  is_active: z.boolean().optional()
+  is_active: z.boolean().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -48,8 +51,8 @@ export default function EditExercisePage() {
       difficulty: '',
       enable_structural_validation: true,
       enable_llm_feedback: true,
-      is_active: true
-    }
+      is_active: true,
+    },
   });
   const { handleSubmit, reset } = form;
 
@@ -64,22 +67,29 @@ export default function EditExercisePage() {
         difficulty: data.difficulty || '',
         enable_structural_validation: data.enable_structural_validation,
         enable_llm_feedback: data.enable_llm_feedback,
-        is_active: data.is_active ?? true
+        is_active: data.is_active ?? true,
       });
     }
   }, [data, reset]);
 
   function onSubmit(values: FormValues) {
     mutation.mutate(values, {
-      onSuccess: () => { toast.success('Ejercicio actualizado'); router.push('/admin/exercises'); },
-      onError: () => toast.error('Error al actualizar ejercicio')
+      onSuccess: () => {
+        toast.success('Ejercicio actualizado');
+        router.push('/admin/exercises');
+      },
+      onError: () => toast.error('Error al actualizar ejercicio'),
     });
   }
 
   return (
-  <main className="space-y-6">
+    <main className="space-y-6">
       <h1 className="text-xl font-semibold">Editar Ejercicio</h1>
-      {isLoading && <div><Loader /></div>}
+      {isLoading && (
+        <div>
+          <Loader />
+        </div>
+      )}
       {!isLoading && (
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -89,7 +99,9 @@ export default function EditExercisePage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Título</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -105,9 +117,15 @@ export default function EditExercisePage() {
                       <MonacoControlledEditor
                         value={field.value || ''}
                         onChange={field.onChange}
-                        language={form.getValues('type') === 'dockerfile' ? 'dockerfile' : 
-                                 form.getValues('type') === 'command' ? 'shell' : 
-                                 form.getValues('type') === 'compose' ? 'yaml' : 'plaintext'}
+                        language={
+                          form.getValues('type') === 'dockerfile'
+                            ? 'dockerfile'
+                            : form.getValues('type') === 'command'
+                              ? 'shell'
+                              : form.getValues('type') === 'compose'
+                                ? 'yaml'
+                                : 'plaintext'
+                        }
                       />
                     </div>
                   </FormControl>
@@ -121,7 +139,9 @@ export default function EditExercisePage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>AI Context</FormLabel>
-                  <FormControl><Textarea rows={3} {...field} /></FormControl>
+                  <FormControl>
+                    <Textarea rows={3} {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -132,33 +152,37 @@ export default function EditExercisePage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Difficulty</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 max-w-4xl">
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo</FormLabel>
                   <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger><SelectValue placeholder="Selecciona tipo" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="command">command</SelectItem>
-                        <SelectItem value="dockerfile">dockerfile</SelectItem>
-                        <SelectItem value="conceptual">conceptual</SelectItem>
-                        <SelectItem value="compose">compose</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 max-w-4xl">
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo</FormLabel>
+                    <FormControl>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="command">command</SelectItem>
+                          <SelectItem value="dockerfile">dockerfile</SelectItem>
+                          <SelectItem value="conceptual">conceptual</SelectItem>
+                          <SelectItem value="compose">compose</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="enable_structural_validation"
@@ -166,9 +190,13 @@ export default function EditExercisePage() {
                   <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2">
                     <div className="space-y-0.5">
                       <FormLabel className="text-sm">Validación estructural</FormLabel>
-                      <p className="text-xs text-muted-foreground">Compara estructura vs solución esperada</p>
+                      <p className="text-xs text-muted-foreground">
+                        Compara estructura vs solución esperada
+                      </p>
                     </div>
-                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
                   </FormItem>
                 )}
               />
@@ -181,23 +209,27 @@ export default function EditExercisePage() {
                       <FormLabel className="text-sm">Feedback LLM</FormLabel>
                       <p className="text-xs text-muted-foreground">Activa retroalimentación IA</p>
                     </div>
-                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
                   </FormItem>
                 )}
               />
-            <FormField
-              control={form.control}
-              name="is_active"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2 max-w-4xl">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-sm">Estado</FormLabel>
-                    <p className="text-xs text-muted-foreground">Activo / Inactivo</p>
-                  </div>
-                  <FormControl><Switch checked={field.value ?? true} onCheckedChange={field.onChange} /></FormControl>
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="is_active"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-md border px-3 py-2 max-w-4xl">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-sm">Estado</FormLabel>
+                      <p className="text-xs text-muted-foreground">Activo / Inactivo</p>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </div>
             <FormField
               control={form.control}
@@ -216,10 +248,19 @@ export default function EditExercisePage() {
             />
             <div className="flex gap-2">
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending && <span className="animate-spin size-4 border-2 border-current border-t-transparent rounded-full" />}
+                {mutation.isPending && (
+                  <span className="animate-spin size-4 border-2 border-current border-t-transparent rounded-full" />
+                )}
                 Guardar
               </Button>
-              <Button type="button" variant="secondary" onClick={()=>router.back()} disabled={mutation.isPending}>Cancelar</Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => router.back()}
+                disabled={mutation.isPending}
+              >
+                Cancelar
+              </Button>
             </div>
           </form>
         </Form>

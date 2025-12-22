@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch, ApiError } from '@/shared/api/http-client';
 import { UserSchema, type User } from '@/shared/api/schemas';
@@ -24,7 +24,11 @@ export function useUser() {
         const result = await apiFetch('/users/me', { schema: UserSchema, swallowErrors: true });
 
         // Si apiFetch devolvió un objeto diagnóstico (swallowErrors), manejarlo
-        if (result && typeof result === 'object' && (result as unknown as { __apiError?: boolean }).__apiError) {
+        if (
+          result &&
+          typeof result === 'object' &&
+          (result as unknown as { __apiError?: boolean }).__apiError
+        ) {
           const diag = result as unknown as { __apiError: true; status?: number; body?: unknown };
           const status = diag.status;
           console.warn('[useUser] /users/me returned api error shape, status=', status);
@@ -56,7 +60,7 @@ export function useUser() {
     // initialData: userInStore,
     staleTime: 2 * 60 * 1000, // 2 minutos
     refetchOnWindowFocus: true, // Refrescar cuando se enfoca la ventana
-    refetchOnReconnect: true,   // Refrescar cuando se reconecta
+    refetchOnReconnect: true, // Refrescar cuando se reconecta
     retry: false,
     enabled: !loggedOut, // No hacer query si el usuario hizo logout
   });
@@ -73,11 +77,11 @@ export function useUser() {
       console.warn('Logout API failed:', error);
       toast.success('Sesión cerrada (con errores)');
     }
-    
+
     // Limpiar store y cache
     logOut();
     queryClient.clear();
-    
+
     // Usar navegación SPA en lugar de reload forzado
     router.push('/autenticacion/iniciar-sesion');
   };
@@ -85,17 +89,17 @@ export function useUser() {
   return {
     // Datos del usuario
     user: query.data || userInStore,
-    
+
     // Estados
     isLoading: query.isLoading && !loggedOut,
     isAuthenticated: !!query.data && !query.error,
     isAdmin: query.data?.role === 'admin',
     error: query.error,
-    
+
     // Acciones
     refetch: query.refetch,
     logout,
-    
+
     // Información de la query
     isFetching: query.isFetching,
     isSuccess: query.isSuccess,

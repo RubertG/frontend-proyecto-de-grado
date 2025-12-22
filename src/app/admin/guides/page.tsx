@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import Link from 'next/link';
 import { Button } from '@/shared/ui/button';
 import { GuidesDataTable } from '@/features/guides/components/guides-data-table';
@@ -18,4 +18,3 @@ export default function AdminGuidesListPage() {
     </div>
   );
 }
-

@@ -12,7 +12,7 @@
 }
 
 .tiptap.ProseMirror {
-  font-family: "DM Sans", sans-serif;
+  font-family: 'DM Sans', sans-serif;
 }
 
 .simple-editor-wrapper {
@@ -46,7 +46,8 @@
 }
 
 /* Toolbar horizontal scroll únicamente dentro del toolbar */
-.tt-editor-scope .tt-toolbar, .tt-editor-scope [data-toolbar] {
+.tt-editor-scope .tt-toolbar,
+.tt-editor-scope [data-toolbar] {
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;

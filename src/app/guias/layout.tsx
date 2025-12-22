@@ -6,6 +6,6 @@ export const dynamic = 'force-dynamic';
 
 export default async function GuidesSectionLayout({ children }: { children: ReactNode }) {
   const guides = await fetchGuides().catch(() => []);
-  const ordered = [...guides].sort((a,b) => a.order - b.order);
+  const ordered = [...guides].sort((a, b) => a.order - b.order);
   return <GuidesShell guides={ordered}>{children}</GuidesShell>;
 }

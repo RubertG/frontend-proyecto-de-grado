@@ -1,73 +1,66 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { EditorContent, EditorContext, useEditor, type Editor } from "@tiptap/react"
+import * as React from 'react';
+import { EditorContent, EditorContext, useEditor, type Editor } from '@tiptap/react';
 
 // --- Tiptap Core Extensions ---
-import { StarterKit } from "@tiptap/starter-kit"
-import { Image } from "@tiptap/extension-image"
-import { TaskItem, TaskList } from "@tiptap/extension-list"
-import { TextAlign } from "@tiptap/extension-text-align"
-import { Typography } from "@tiptap/extension-typography"
-import { Highlight } from "@tiptap/extension-highlight"
-import { Subscript } from "@tiptap/extension-subscript"
-import { Superscript } from "@tiptap/extension-superscript"
-import { Link } from "@tiptap/extension-link"
+import { StarterKit } from '@tiptap/starter-kit';
+import { Image } from '@tiptap/extension-image';
+import { TaskItem, TaskList } from '@tiptap/extension-list';
+import { TextAlign } from '@tiptap/extension-text-align';
+import { Typography } from '@tiptap/extension-typography';
+import { Highlight } from '@tiptap/extension-highlight';
+import { Subscript } from '@tiptap/extension-subscript';
+import { Superscript } from '@tiptap/extension-superscript';
+import { Link } from '@tiptap/extension-link';
 
 // --- UI Primitives ---
 // import removed Button (no mobile view)
-import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
-import {
-  Toolbar,
-  ToolbarGroup,
-  ToolbarSeparator,
-} from "@/components/tiptap-ui-primitive/toolbar"
+import { Spacer } from '@/components/tiptap-ui-primitive/spacer';
+import { Toolbar, ToolbarGroup, ToolbarSeparator } from '@/components/tiptap-ui-primitive/toolbar';
 
 // --- Tiptap Node ---
-import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node/image-upload-node-extension"
+import { ImageUploadNode } from '@/components/tiptap-node/image-upload-node/image-upload-node-extension';
 // Estilos aislados del editor (scoped)
-import "@/styles/editor/editor-scope.scss"
-import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension"
-import "@/components/tiptap-node/blockquote-node/blockquote-node.scss"
-import "@/components/tiptap-node/code-block-node/code-block-node.scss"
-import "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss"
-import "@/components/tiptap-node/list-node/list-node.scss"
-import "@/components/tiptap-node/image-node/image-node.scss"
-import "@/components/tiptap-node/heading-node/heading-node.scss"
-import "@/components/tiptap-node/paragraph-node/paragraph-node.scss"
+import '@/styles/editor/editor-scope.scss';
+import { HorizontalRule } from '@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension';
+import '@/components/tiptap-node/blockquote-node/blockquote-node.scss';
+import '@/components/tiptap-node/code-block-node/code-block-node.scss';
+import '@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss';
+import '@/components/tiptap-node/list-node/list-node.scss';
+import '@/components/tiptap-node/image-node/image-node.scss';
+import '@/components/tiptap-node/heading-node/heading-node.scss';
+import '@/components/tiptap-node/paragraph-node/paragraph-node.scss';
 
 // --- Tiptap UI ---
-import { HeadingDropdownMenu } from "@/components/tiptap-ui/heading-dropdown-menu"
-import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu"
-import { BlockquoteButton } from "@/components/tiptap-ui/blockquote-button"
-import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button"
+import { HeadingDropdownMenu } from '@/components/tiptap-ui/heading-dropdown-menu';
+import { ListDropdownMenu } from '@/components/tiptap-ui/list-dropdown-menu';
+import { BlockquoteButton } from '@/components/tiptap-ui/blockquote-button';
+import { CodeBlockButton } from '@/components/tiptap-ui/code-block-button';
 import {
   ColorHighlightPopover,
   ColorHighlightPopoverButton,
-} from "@/components/tiptap-ui/color-highlight-popover"
-import {
-  LinkPopover,
-  LinkButton,
-} from "@/components/tiptap-ui/link-popover"
-import { MarkButton } from "@/components/tiptap-ui/mark-button"
-import { TextAlignButton } from "@/components/tiptap-ui/text-align-button"
-import { UndoRedoButton } from "@/components/tiptap-ui/undo-redo-button"
+} from '@/components/tiptap-ui/color-highlight-popover';
+import { LinkPopover, LinkButton } from '@/components/tiptap-ui/link-popover';
+import { MarkButton } from '@/components/tiptap-ui/mark-button';
+import { TextAlignButton } from '@/components/tiptap-ui/text-align-button';
+import { UndoRedoButton } from '@/components/tiptap-ui/undo-redo-button';
 
 // Icons for mobile view removed
 
 // --- Hooks ---
-import { useIsMobile } from "@/hooks/use-mobile"
-import { useWindowSize } from "@/hooks/use-window-size"
-import { useCursorVisibility } from "@/hooks/use-cursor-visibility"
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useWindowSize } from '@/hooks/use-window-size';
+import { useCursorVisibility } from '@/hooks/use-cursor-visibility';
 
 // --- Components ---
 // ThemeToggle removido para forzar modo claro
 
 // --- Lib ---
-import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils"
+import { handleImageUpload, MAX_FILE_SIZE } from '@/lib/tiptap-utils';
 
 // --- Styles ---
-import "@/components/tiptap-templates/simple/simple-editor.scss"
+import '@/components/tiptap-templates/simple/simple-editor.scss';
 
 // Eliminamos el contenido estático para usarlo como componente controlado
 // import content from "@/components/tiptap-templates/simple/data/content.json"
@@ -84,9 +77,9 @@ const MainToolbarContent = ({
   onLinkClick,
   isMobile,
 }: {
-  onHighlighterClick: () => void
-  onLinkClick: () => void
-  isMobile: boolean
+  onHighlighterClick: () => void;
+  onLinkClick: () => void;
+  isMobile: boolean;
 }) => {
   return (
     <>
@@ -101,10 +94,7 @@ const MainToolbarContent = ({
 
       <ToolbarGroup>
         <HeadingDropdownMenu levels={[1, 2, 3, 4]} portal={isMobile} />
-        <ListDropdownMenu
-          types={["bulletList", "orderedList", "taskList"]}
-          portal={isMobile}
-        />
+        <ListDropdownMenu types={['bulletList', 'orderedList', 'taskList']} portal={isMobile} />
         <BlockquoteButton />
         <CodeBlockButton />
       </ToolbarGroup>
@@ -153,65 +143,73 @@ const MainToolbarContent = ({
 
       {/* Theme toggle removido (modo claro fijo) */}
     </>
-  )
-}
+  );
+};
 
 // Eliminado MobileToolbarContent: ya no cambiamos la vista en móvil; mostramos todas las opciones con scroll horizontal
 
-export function SimpleEditor({ value, onChange, placeholder, className }: ControlledSimpleEditorProps) {
-  const isMobile = useIsMobile()
-  const { height } = useWindowSize()
+export function SimpleEditor({
+  value,
+  onChange,
+  placeholder,
+  className,
+}: ControlledSimpleEditorProps) {
+  const isMobile = useIsMobile();
+  const { height } = useWindowSize();
   // Eliminamos mobileView, siempre mostramos la barra principal completa
-  const toolbarRef = React.useRef<HTMLDivElement>(null)
+  const toolbarRef = React.useRef<HTMLDivElement>(null);
 
   // Memoizar la lista de extensiones para evitar recreaciones del Editor
   // que pueden causar el warning: Duplicate extension names found: ['link']
-  const extensions = React.useMemo(() => [
-    StarterKit.configure({
-      horizontalRule: false,
-    }),
-    Link.configure({
-      openOnClick: false,
-      autolink: true,
-      linkOnPaste: true,
-    }),
-    HorizontalRule,
-    TextAlign.configure({ types: ["heading", "paragraph"] }),
-    TaskList,
-    TaskItem.configure({ nested: true }),
-    Highlight.configure({ multicolor: true }),
-    Image,
-    Typography,
-    Superscript,
-    Subscript,
-    ImageUploadNode.configure({
-      accept: "image/*",
-      maxSize: MAX_FILE_SIZE,
-      limit: 3,
-      upload: handleImageUpload,
-      onError: (error: unknown) => console.error("Upload failed:", error),
-    }),
-  ], [])
+  const extensions = React.useMemo(
+    () => [
+      StarterKit.configure({
+        horizontalRule: false,
+      }),
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        linkOnPaste: true,
+      }),
+      HorizontalRule,
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      Highlight.configure({ multicolor: true }),
+      Image,
+      Typography,
+      Superscript,
+      Subscript,
+      ImageUploadNode.configure({
+        accept: 'image/*',
+        maxSize: MAX_FILE_SIZE,
+        limit: 3,
+        upload: handleImageUpload,
+        onError: (error: unknown) => console.error('Upload failed:', error),
+      }),
+    ],
+    [],
+  );
 
   const editor = useEditor({
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
     editorProps: {
       attributes: {
-        autocomplete: "off",
-        autocorrect: "off",
-        autocapitalize: "off",
-        "aria-label": "Main content area, start typing to enter text.",
-        class: "simple-editor" + (className ? ` ${className}` : ""),
+        autocomplete: 'off',
+        autocorrect: 'off',
+        autocapitalize: 'off',
+        'aria-label': 'Main content area, start typing to enter text.',
+        class: 'simple-editor' + (className ? ` ${className}` : ''),
       },
     },
     extensions,
-    content: value || "",
+    content: value || '',
     onUpdate: ({ editor }: { editor: Editor }) => {
       const html = editor.getHTML();
       onChange(html);
-    }
-  })
+    },
+  });
 
   // Sincronizar cambios externos (reset del formulario)
   React.useEffect(() => {
@@ -219,7 +217,7 @@ export function SimpleEditor({ value, onChange, placeholder, className }: Contro
     const current = editor.getHTML();
     if (value && value !== current) {
       editor.commands.setContent(value);
-    } else if (!value && current !== "") {
+    } else if (!value && current !== '') {
       editor.commands.clearContent();
     }
   }, [value, editor]);
@@ -227,7 +225,7 @@ export function SimpleEditor({ value, onChange, placeholder, className }: Contro
   const rect = useCursorVisibility({
     editor,
     overlayHeight: toolbarRef.current?.getBoundingClientRect().height ?? 0,
-  })
+  });
 
   // Sin vista móvil alternativa, no se requiere efecto de sincronización
 
@@ -256,11 +254,7 @@ export function SimpleEditor({ value, onChange, placeholder, className }: Contro
         </div>
 
         <div className="relative flex-1 min-h-0">
-          <EditorContent
-            editor={editor}
-            role="presentation"
-            className="simple-editor-content"
-          />
+          <EditorContent editor={editor} role="presentation" className="simple-editor-content" />
           {placeholder && !editor?.getText().length && (
             <div className="pointer-events-none select-none text-muted-foreground opacity-60 absolute top-3 left-4 text-sm">
               {placeholder}
@@ -269,5 +263,5 @@ export function SimpleEditor({ value, onChange, placeholder, className }: Contro
         </div>
       </EditorContext.Provider>
     </div>
-  )
+  );
 }

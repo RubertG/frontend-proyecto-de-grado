@@ -1,7 +1,8 @@
 import { apiFetch } from '@/shared/api/http-client';
 import { ProgressCompletedListSchema, ProgressOverviewSchema } from '@/shared/api/schemas';
 
-export const fetchProgressCompleted = () => apiFetch('/progress/completed', { schema: ProgressCompletedListSchema });
+export const fetchProgressCompleted = () =>
+  apiFetch('/progress/completed', { schema: ProgressCompletedListSchema });
 
 export interface FetchProgressOverviewParams {
   includeExercises?: boolean;

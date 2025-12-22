@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,7 +16,7 @@ const schema = z.object({
   topic: z.string().optional(),
   order: z.coerce.number().int().min(0),
   content_html: z.string().optional(),
-  is_active: z.boolean().optional()
+  is_active: z.boolean().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -30,19 +30,19 @@ export default function CreateGuidePage() {
       order: 0,
       content_html: '',
       is_active: true,
-    }
+    },
   });
   const { handleSubmit } = form;
   const mutation = useCreateGuideMutation();
   const router = useRouter();
 
   function onSubmit(values: FormValues) {
-    mutation.mutate(values, { 
+    mutation.mutate(values, {
       onSuccess: () => {
         toast.success('Guía creada');
         router.push('/admin/guides');
       },
-      onError: () => toast.error('Error al crear guía')
+      onError: () => toast.error('Error al crear guía'),
     });
   }
 
@@ -84,7 +84,11 @@ export default function CreateGuidePage() {
               <FormItem>
                 <FormLabel>Orden</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} onChange={(e)=>field.onChange(Number(e.target.value))} />
+                  <Input
+                    type="number"
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,10 +124,17 @@ export default function CreateGuidePage() {
           />
           <div className="flex gap-2 pt-2">
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending && <span className="animate-spin size-4 border-2 border-current border-t-transparent rounded-full" />}
+              {mutation.isPending && (
+                <span className="animate-spin size-4 border-2 border-current border-t-transparent rounded-full" />
+              )}
               Crear
             </Button>
-            <Button type="button" variant="secondary" onClick={()=>router.back()} disabled={mutation.isPending}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => router.back()}
+              disabled={mutation.isPending}
+            >
               Cancelar
             </Button>
           </div>

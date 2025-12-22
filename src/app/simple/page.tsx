@@ -1,9 +1,9 @@
-"use client";
-import * as React from "react";
-import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
+'use client';
+import * as React from 'react';
+import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
 
 export default function Page() {
-  const [value, setValue] = React.useState("<p>Demo inicial</p>");
+  const [value, setValue] = React.useState('<p>Demo inicial</p>');
   return (
     <main className="p-6 space-y-4">
       <h1 className="text-xl font-semibold">Demo Simple Editor</h1>

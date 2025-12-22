@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React from 'react';
 import type { Exercise } from '@/shared/api/schemas';
 import { AttemptSubmissionForm } from './attempt-submission-form';
@@ -10,7 +10,10 @@ import { CheckCircle2 } from 'lucide-react';
 import { SafeHtml } from '@/components/safe-html';
 import { StructuralValidationPanel } from './structural-validation-panel';
 // ...existing imports...
-import { useAttemptsByExercise, useGenerateFeedbackMutation } from '@/features/attempts/hooks/use-attempts';
+import {
+  useAttemptsByExercise,
+  useGenerateFeedbackMutation,
+} from '@/features/attempts/hooks/use-attempts';
 import { useExerciseRuntimeStore } from '@/shared/stores/exercise-runtime-store';
 import { toast } from 'sonner';
 
@@ -21,7 +24,7 @@ interface ExerciseWorkAreaProps {
 export function ExerciseWorkArea({ exercise }: ExerciseWorkAreaProps) {
   const { data: attempts } = useAttemptsByExercise(exercise.id);
   const isCompleted = React.useMemo(() => {
-    return (attempts?.some(a => a.completed)) ?? false;
+    return attempts?.some((a) => a.completed) ?? false;
   }, [attempts]);
   const lastAttempt = attempts?.[0];
   const runtime = useExerciseRuntimeStore();
@@ -38,7 +41,10 @@ export function ExerciseWorkArea({ exercise }: ExerciseWorkAreaProps) {
     if (!lastAttempt) return;
     try {
       runtime.setGenerating(true);
-  await genFeedback({ exercise_id: exercise.id, submitted_answer: lastAttempt.submitted_answer || '' });
+      await genFeedback({
+        exercise_id: exercise.id,
+        submitted_answer: lastAttempt.submitted_answer || '',
+      });
       toast.success('Feedback regenerado');
     } catch {
       toast.error('No se pudo regenerar el feedback');
@@ -47,13 +53,17 @@ export function ExerciseWorkArea({ exercise }: ExerciseWorkAreaProps) {
     }
   }
 
-  const validation = useExerciseRuntimeStore(s => s.structuralValidation);
+  const validation = useExerciseRuntimeStore((s) => s.structuralValidation);
 
   const canShowFeedback = (() => {
     if (!lastAttempt) return false;
     if (exercise.type === 'conceptual') return true; // no hay validación estructural
     // Para command/dockerfile/compose sólo si validación pasó
-    if (exercise.type === 'command' || exercise.type === 'dockerfile' || exercise.type === 'compose') {
+    if (
+      exercise.type === 'command' ||
+      exercise.type === 'dockerfile' ||
+      exercise.type === 'compose'
+    ) {
       return validation.status === 'passed';
     }
     return true;
@@ -77,7 +87,7 @@ export function ExerciseWorkArea({ exercise }: ExerciseWorkAreaProps) {
           )}
         </div>
       </header>
-  <section>
+      <section>
         {exercise.content_html ? (
           <article className="prose dark:prose-invert max-w-none prose-sm md:prose-base">
             <SafeHtml html={exercise.content_html} className="rich-content" />
@@ -86,26 +96,30 @@ export function ExerciseWorkArea({ exercise }: ExerciseWorkAreaProps) {
           <p className="text-sm text-muted-foreground">Este ejercicio aún no tiene contenido.</p>
         )}
       </section>
-  <section className="flex flex-col gap-8" aria-labelledby="workspace-heading">
-        <h2 id="workspace-heading" className="sr-only">Área de respuesta y feedback</h2>
+      <section className="flex flex-col gap-8" aria-labelledby="workspace-heading">
+        <h2 id="workspace-heading" className="sr-only">
+          Área de respuesta y feedback
+        </h2>
         <AttemptSubmissionForm exercise={exercise} />
         <StructuralValidationPanel type={exercise.type} />
         {canShowFeedback ? (
-            <div className="flex flex-col gap-4 max-w-5xl">
-              <h3 className="text-base font-medium tracking-tight">Feedback y conversación</h3>
-              <div className="rounded-lg border border-border/60 bg-background/70 p-3 shadow-sm flex flex-col gap-3 min-h-[120px]">
-                <FeedbackChat
-                  attempt={lastAttempt}
-                  isGenerating={runtime.isGeneratingFeedback || genPending}
-                  onRetry={handleRetryFeedback}
-                />
-              </div>
+          <div className="flex flex-col gap-4 max-w-5xl">
+            <h3 className="text-base font-medium tracking-tight">Feedback y conversación</h3>
+            <div className="rounded-lg border border-border/60 bg-background/70 p-3 shadow-sm flex flex-col gap-3 min-h-[120px]">
+              <FeedbackChat
+                attempt={lastAttempt}
+                isGenerating={runtime.isGeneratingFeedback || genPending}
+                onRetry={handleRetryFeedback}
+              />
             </div>
-          ) : null }
+          </div>
+        ) : null}
       </section>
-      {(attempts && attempts.length > 0) && (
+      {attempts && attempts.length > 0 && (
         <section className="space-y-4 max-w-5xl" aria-labelledby="intentos-heading">
-          <h2 id="intentos-heading" className="text-base font-medium tracking-tight">Intentos previos</h2>
+          <h2 id="intentos-heading" className="text-base font-medium tracking-tight">
+            Intentos previos
+          </h2>
           <AttemptsCompactList exerciseId={exercise.id} />
         </section>
       )}

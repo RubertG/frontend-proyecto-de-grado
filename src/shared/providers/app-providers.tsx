@@ -11,7 +11,7 @@ import { Loader } from '../ui/Loader';
 const ADMIN_PREFIX = '/admin';
 
 function isAdminRoute(pathname: string) {
-  return pathname === ADMIN_PREFIX || pathname.startsWith(ADMIN_PREFIX + '/')
+  return pathname === ADMIN_PREFIX || pathname.startsWith(ADMIN_PREFIX + '/');
 }
 
 // Componente para manejar la autenticación automáticamente
@@ -34,7 +34,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className='h-screen w-full grid place-content-center'>
+      <div className="h-screen w-full grid place-content-center">
         <Loader />
       </div>
     );
@@ -79,16 +79,14 @@ interface AppProvidersProps {
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider 
-        attribute="class" 
-        defaultTheme="light" 
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
         enableSystem={false}
         disableTransitionOnChange
         storageKey="app-theme"
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
         <Toaster position="bottom-right" richColors />
         <ReactQueryDevtools initialIsOpen={false} />
       </ThemeProvider>

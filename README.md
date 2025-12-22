@@ -40,7 +40,7 @@ Plataforma educativa con editor de texto enriquecido (Tiptap), consola de comand
 **Editores**: Tiptap 3.4 · Monaco Editor 0.52  
 **UI**: Radix UI · Lucide Icons · react-hook-form  
 **Auth**: Supabase 2.45  
-**Dev Tools**: ESLint 9 · Prettier · Husky · lint-staged  
+**Dev Tools**: ESLint 9 · Prettier · Husky · lint-staged
 
 Ver `.DOCUMENTATION` para detalles completos de arquitectura.
 
@@ -140,6 +140,7 @@ src/
 **Ventajas**: Zero-config, CDN global, preview deployments, edge functions, SSL automático
 
 **Deploy**:
+
 1. [Importar repo](https://vercel.com/new) en Vercel Dashboard
 2. Configurar variables de entorno:
    ```
@@ -150,6 +151,7 @@ src/
 3. Deploy automático
 
 **CLI** (opcional):
+
 ```bash
 npm i -g vercel
 vercel login
@@ -212,6 +214,7 @@ CMD ["node", "server.js"]
 **next.config.ts**: Agregar `output: 'standalone'`
 
 **Build & Run**:
+
 ```bash
 docker build -t plataforma-frontend \
   --build-arg NEXT_PUBLIC_SUPABASE_URL=https://... \
@@ -228,6 +231,7 @@ docker run -p 3000:3000 plataforma-frontend
 **Stack**: Ubuntu 22.04 + Node 20 + pnpm + PM2 + Nginx + Let's Encrypt
 
 **Setup rápido**:
+
 ```bash
 # Instalar dependencias
 sudo apt update && sudo apt install -y nodejs npm nginx certbot python3-certbot-nginx
@@ -262,6 +266,7 @@ sudo certbot --nginx -d tudominio.com
 ```
 
 **Deploy automático** (`deploy.sh`):
+
 ```bash
 git pull && pnpm install --frozen-lockfile && pnpm build && pm2 restart plataforma
 ```
@@ -325,7 +330,7 @@ const nextConfig: NextConfig = {
 ```typescript
 import dynamic from 'next/dynamic';
 
-const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { 
+const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
   loading: () => <p>Cargando editor...</p>
 });
@@ -338,7 +343,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 60_000, // 1 min
-      gcTime: 300_000,   // 5 min
+      gcTime: 300_000, // 5 min
       retry: 1,
       refetchOnWindowFocus: false,
     },
@@ -369,12 +374,14 @@ pnpm add @sentry/nextjs
 ### Analytics
 
 **Vercel Analytics**:
+
 ```bash
 pnpm add @vercel/analytics
 # Agregar <Analytics /> en layout.tsx
 ```
 
 **Google Analytics**:
+
 ```typescript
 import { GoogleAnalytics } from '@next/third-parties/google';
 // <GoogleAnalytics gaId="G-XXXXXXXXXX" />
@@ -412,18 +419,21 @@ sudo tail -f /var/log/nginx/access.log
 ```typescript
 const nextConfig: NextConfig = {
   async headers() {
-    return [{
-      source: '/:path*',
-      headers: [
-        { key: 'X-Frame-Options', value: 'DENY' },
-        { key: 'X-Content-Type-Options', value: 'nosniff' },
-        { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-        { 
-          key: 'Content-Security-Policy', 
-          value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.tudominio.com"
-        },
-      ],
-    }];
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          {
+            key: 'Content-Security-Policy',
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.tudominio.com",
+          },
+        ],
+      },
+    ];
   },
 };
 ```
@@ -464,30 +474,36 @@ Configurar redirect en Nginx/Vercel/Netlify (configuración automática en la ma
 ## 🐛 Troubleshooting
 
 ### pnpm no reconocido
+
 ```powershell
 npm i -g pnpm
 # O: corepack enable
 ```
 
 ### "This project requires pnpm"
+
 Estás usando npm/yarn. Usa solo `pnpm install`.
 
 ### Variables de entorno faltantes
+
 1. Crear `.env.local`
 2. Agregar las 3 variables (ver sección Configuración)
 3. Reiniciar servidor
 
 ### No conecta con backend API
+
 - Verificar backend corriendo: `curl http://localhost:8000/api/v1/health`
 - Verificar `NEXT_PUBLIC_API_BASE` correcto
 - Revisar logs del backend (CORS)
 
 ### Autenticación Supabase falla
+
 - Verificar credenciales correctas en `.env.local`
 - Usar `anon key` (NO `service_role`)
 - Verificar proyecto Supabase activo
 
 ### Puerto 3000 ocupado
+
 ```powershell
 netstat -ano | findstr :3000
 taskkill /PID <PID> /F
@@ -495,12 +511,14 @@ taskkill /PID <PID> /F
 ```
 
 ### Build falla (TypeScript)
+
 ```powershell
 pnpm typecheck  # Ver errores específicos
 # Corregir y volver a: pnpm build
 ```
 
 ### Hot reload no funciona
+
 ```powershell
 Remove-Item -Recurse -Force .next
 pnpm dev
@@ -511,27 +529,32 @@ pnpm dev
 ## 📝 Notas Importantes
 
 **Dependencias**:
+
 - Solo pnpm (npm/yarn causarán errores)
 - Node 20.x obligatorio
 - React 19 (puede tener warnings de compatibilidad con libs antiguas)
 
 **Variables de Entorno**:
+
 - Prefijo `NEXT_PUBLIC_` obligatorio para exponer al navegador
 - `.env.local` en `.gitignore` (no subir a Git)
 - Documentar variables secretas en gestor seguro (1Password/Vault)
 
 **Desarrollo**:
+
 - Turbopack habilitado por defecto en dev
 - React Query usa stale-while-revalidate
 - Monaco/Tiptap tienen lazy loading (~1s primera carga)
 
 **Producción**:
+
 - Siempre ejecutar `pnpm build` local antes de desplegar
 - Configurar variables en plataforma de hosting
 - Optimizado para Vercel, compatible con cualquier host Next.js
 - Pre-commit hooks: Prettier + ESLint automáticos
 
 **Recursos**:
+
 - Supabase Dashboard: Gestión usuarios/DB/storage
 - Backend API: Ver `ENDPOINTS_README.md`
 - Schema DB: `educational_platform_schema.sql`
@@ -539,5 +562,3 @@ pnpm dev
 ---
 
 **¡Feliz desarrollo! 🚀**
-
-

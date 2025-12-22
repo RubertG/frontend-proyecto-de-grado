@@ -35,25 +35,25 @@ Desarrollar dos superficies diferenciadas:
 
 ## 2. Stack Tecnológico Confirmado
 
-| Área | Tecnología |
-|------|------------|
-| Framework | Next.js 15 (App Router, RSC) |
-| Lenguaje | TypeScript (strict) |
-| Paquetes | pnpm |
-| UI | TailwindCSS + shadcn/ui |
-| Formularios | react-hook-form + zod |
-| Data fetching | React Query |
-| Estado local | Zustand (stores acotados) |
-| Auth | Supabase Auth |
-| Editor | Monaco (lazy import) |
-| Markdown | react-markdown + remark-gfm + rehype-sanitize |
-| HTML seguro | DOMPurify / rehype-sanitize |
-| Animaciones | Framer Motion |
-| Lint | ESLint |
-| Formato | Prettier |
-| Testing | Vitest / Playwright (definir) |
-| Observabilidad (futuro) | Sentry |
-| Métricas cliente (futuro) | Logger custom |
+| Área                      | Tecnología                                    |
+| ------------------------- | --------------------------------------------- |
+| Framework                 | Next.js 15 (App Router, RSC)                  |
+| Lenguaje                  | TypeScript (strict)                           |
+| Paquetes                  | pnpm                                          |
+| UI                        | TailwindCSS + shadcn/ui                       |
+| Formularios               | react-hook-form + zod                         |
+| Data fetching             | React Query                                   |
+| Estado local              | Zustand (stores acotados)                     |
+| Auth                      | Supabase Auth                                 |
+| Editor                    | Monaco (lazy import)                          |
+| Markdown                  | react-markdown + remark-gfm + rehype-sanitize |
+| HTML seguro               | DOMPurify / rehype-sanitize                   |
+| Animaciones               | Framer Motion                                 |
+| Lint                      | ESLint                                        |
+| Formato                   | Prettier                                      |
+| Testing                   | Vitest / Playwright (definir)                 |
+| Observabilidad (futuro)   | Sentry                                        |
+| Métricas cliente (futuro) | Logger custom                                 |
 
 ---
 
@@ -172,18 +172,18 @@ Solo crear carpetas al usarlas (evitar ruido inicial para Copilot).
 
 ## 6. Endpoints Backend Relevantes
 
-| Función | Endpoint |
-|---------|----------|
-| Usuario autenticado | `GET /users/me` |
-| Guías CRUD | `/guides/` |
-| Ejercicios CRUD | `/exercises/` |
-| Ejercicios por guía | `GET /exercises/by-guide/{guide_id}` |
-| Intentos | `POST /attempts/`, `GET /attempts/by-exercise/{exercise_id}` |
-| Feedback intento | `POST /feedback/attempt` |
-| Chat | `POST /feedback/chat` |
-| Historial | `GET /feedback/history?exercise_id=...` |
-| Progreso | `/progress/completed`, `/progress/complete` |
-| LLM status | `GET /llm/status` |
+| Función             | Endpoint                                                     |
+| ------------------- | ------------------------------------------------------------ |
+| Usuario autenticado | `GET /users/me`                                              |
+| Guías CRUD          | `/guides/`                                                   |
+| Ejercicios CRUD     | `/exercises/`                                                |
+| Ejercicios por guía | `GET /exercises/by-guide/{guide_id}`                         |
+| Intentos            | `POST /attempts/`, `GET /attempts/by-exercise/{exercise_id}` |
+| Feedback intento    | `POST /feedback/attempt`                                     |
+| Chat                | `POST /feedback/chat`                                        |
+| Historial           | `GET /feedback/history?exercise_id=...`                      |
+| Progreso            | `/progress/completed`, `/progress/complete`                  |
+| LLM status          | `GET /llm/status`                                            |
 
 ---
 
@@ -197,12 +197,12 @@ Solo crear carpetas al usarlas (evitar ruido inicial para Copilot).
 
 ## 8. Sanitización
 
-| Origen | Tratamiento |
-|--------|-------------|
-| `content_html` | `sanitizeHtml` helper |
-| `content_md` | Markdown pipeline (`react-markdown + rehype-sanitize`) |
-| Inputs usuario | No se renderizan (solo envío) |
-| Tooltips / flags | Texto plano escapado |
+| Origen           | Tratamiento                                            |
+| ---------------- | ------------------------------------------------------ |
+| `content_html`   | `sanitizeHtml` helper                                  |
+| `content_md`     | Markdown pipeline (`react-markdown + rehype-sanitize`) |
+| Inputs usuario   | No se renderizan (solo envío)                          |
+| Tooltips / flags | Texto plano escapado                                   |
 
 Prohibido `dangerouslySetInnerHTML` fuera de helpers centralizados.
 
@@ -211,6 +211,7 @@ Prohibido `dangerouslySetInnerHTML` fuera de helpers centralizados.
 ## 9. Servicios (API Layer)
 
 Reglas:
+
 - Un archivo por recurso (ej: `guides-api.ts`, `exercises-api.ts`).
 - Prefijos semánticos (`fetch`, `create`, `update`, `delete`, `generate`, `send`).
 - Mutaciones invalidan queries relevantes usando factory de keys.
@@ -221,14 +222,16 @@ Reglas:
 ## 10. Estado Global y React Query
 
 ### Stores
-| Store | Responsabilidad |
-|-------|-----------------|
-| sessionStore | Usuario y estado auth |
-| exerciseRuntimeStore | exerciseId, attemptId, flags envío/feedback |
-| chatStore (futuro) | Mensajes transitorios mientras llega historial |
-| uiStore | Toggles UI (sidebar, panel chat) |
+
+| Store                | Responsabilidad                                |
+| -------------------- | ---------------------------------------------- |
+| sessionStore         | Usuario y estado auth                          |
+| exerciseRuntimeStore | exerciseId, attemptId, flags envío/feedback    |
+| chatStore (futuro)   | Mensajes transitorios mientras llega historial |
+| uiStore              | Toggles UI (sidebar, panel chat)               |
 
 ### Reglas
+
 - No duplicar en store lo que ya está en cache React Query.
 - Reset runtime al cambiar de ejercicio.
 
@@ -238,17 +241,17 @@ Reglas:
 
 Generadas en `shared/api/query-keys.ts`:
 
-| Recurso | Key |
-|---------|-----|
-| Guías | `['guides']` |
-| Guía detalle | `['guides','detail',guideId]` |
-| Ejercicios por guía | `['exercises','by-guide',guideId]` |
-| Ejercicio detalle | `['exercises','detail',exerciseId]` |
-| Intentos | `['attempts','by-exercise',exerciseId]` |
-| Historial feedback | `['feedback','history',exerciseId,(attemptId?)]` |
-| LLM status | `['llm','status']` |
-| Progreso | `['progress','guides']` |
-| Usuario | `['users','me']` |
+| Recurso             | Key                                              |
+| ------------------- | ------------------------------------------------ |
+| Guías               | `['guides']`                                     |
+| Guía detalle        | `['guides','detail',guideId]`                    |
+| Ejercicios por guía | `['exercises','by-guide',guideId]`               |
+| Ejercicio detalle   | `['exercises','detail',exerciseId]`              |
+| Intentos            | `['attempts','by-exercise',exerciseId]`          |
+| Historial feedback  | `['feedback','history',exerciseId,(attemptId?)]` |
+| LLM status          | `['llm','status']`                               |
+| Progreso            | `['progress','guides']`                          |
+| Usuario             | `['users','me']`                                 |
 
 Prohibido hardcodear arrays fuera de la fábrica.
 
@@ -320,14 +323,14 @@ Eventos sugeridos:
 
 ## 18. Testing
 
-| Tipo | Cobertura |
-|------|-----------|
-| Unit (schemas) | Parse correcto de responses |
-| Unit (hooks) | useExerciseFlow, canal chat |
-| E2E | Flujo admin CRUD / flujo estudiante intento + feedback |
-| UI fallback | Feedback vacío |
-| Middleware | Acceso a `/admin/*` sin rol |
-| Performance (opcional) | Tiempo carga ejercicio base |
+| Tipo                   | Cobertura                                              |
+| ---------------------- | ------------------------------------------------------ |
+| Unit (schemas)         | Parse correcto de responses                            |
+| Unit (hooks)           | useExerciseFlow, canal chat                            |
+| E2E                    | Flujo admin CRUD / flujo estudiante intento + feedback |
+| UI fallback            | Feedback vacío                                         |
+| Middleware             | Acceso a `/admin/*` sin rol                            |
+| Performance (opcional) | Tiempo carga ejercicio base                            |
 
 ---
 
@@ -343,18 +346,18 @@ Eventos sugeridos:
 
 ## 20. Roadmap Técnico
 
-| Iteración | Foco |
-|-----------|------|
-| 1 | Admin Auth + CRUD Guías |
-| 2 | CRUD Ejercicios + Flags |
-| 3 | Intentos (admin) + LLM status |
-| 4 | Guías públicas + detalle |
-| 5 | Intentos + feedback estudiante |
-| 6 | Chat + historial |
-| 7 | Progreso + reintentos UX |
-| 8 | Badges + typewriter |
-| 9 | Streaming SSE + métricas cliente |
-| 10 | Accesibilidad + performance |
+| Iteración | Foco                             |
+| --------- | -------------------------------- |
+| 1         | Admin Auth + CRUD Guías          |
+| 2         | CRUD Ejercicios + Flags          |
+| 3         | Intentos (admin) + LLM status    |
+| 4         | Guías públicas + detalle         |
+| 5         | Intentos + feedback estudiante   |
+| 6         | Chat + historial                 |
+| 7         | Progreso + reintentos UX         |
+| 8         | Badges + typewriter              |
+| 9         | Streaming SSE + métricas cliente |
+| 10        | Accesibilidad + performance      |
 
 ---
 
@@ -384,36 +387,37 @@ Eventos sugeridos:
 
 ## 23. Riesgos y Mitigaciones
 
-| Riesgo | Mitigación |
-|--------|-----------|
-| Duplicación de lógica API | Feature-first + servicios aislados |
-| Estados duplicados (store + query) | Regla: datos remotos solo en queries |
-| Feedback vacío sin fallback | Panel fallback estandarizado |
-| Imports relativos profundos | Alias `@/` + ESLint |
-| Cambios backend rompen front | Zod parse (fail-fast) |
-| Crecimiento desordenado del chat | Historial controlado + límite inicial |
-| Streaming complejo luego | Abstracción de canal desde inicio |
-| Sanitización omitida | Helpers centralizados obligatorios |
+| Riesgo                             | Mitigación                            |
+| ---------------------------------- | ------------------------------------- |
+| Duplicación de lógica API          | Feature-first + servicios aislados    |
+| Estados duplicados (store + query) | Regla: datos remotos solo en queries  |
+| Feedback vacío sin fallback        | Panel fallback estandarizado          |
+| Imports relativos profundos        | Alias `@/` + ESLint                   |
+| Cambios backend rompen front       | Zod parse (fail-fast)                 |
+| Crecimiento desordenado del chat   | Historial controlado + límite inicial |
+| Streaming complejo luego           | Abstracción de canal desde inicio     |
+| Sanitización omitida               | Helpers centralizados obligatorios    |
 
 ---
 
 ## 24. Glosario
 
-| Término | Definición |
-|---------|-----------|
-| Attempt | Intento de resolver un ejercicio |
-| Feedback LLM | Respuesta Markdown devuelta por backend |
-| Chat | Interacción posterior asociada al ejercicio/attempt |
-| Flags | Indicadores del pipeline (similarity_used, truncated...) |
-| Stub Mode | Modo sin modelo real (respuesta limitada) |
-| Streaming | Respuesta incremental futura |
-| Runtime Store | Estado efímero ligado al ejercicio actual |
+| Término       | Definición                                               |
+| ------------- | -------------------------------------------------------- |
+| Attempt       | Intento de resolver un ejercicio                         |
+| Feedback LLM  | Respuesta Markdown devuelta por backend                  |
+| Chat          | Interacción posterior asociada al ejercicio/attempt      |
+| Flags         | Indicadores del pipeline (similarity_used, truncated...) |
+| Stub Mode     | Modo sin modelo real (respuesta limitada)                |
+| Streaming     | Respuesta incremental futura                             |
+| Runtime Store | Estado efímero ligado al ejercicio actual                |
 
 ---
 
 ## 25. Checklist Global
 
 ### Tooling Base
+
 - [ ] pnpm configurado + script preinstall
 - [ ] Node 20 (.nvmrc)
 - [ ] ESLint + Prettier + husky + lint-staged
@@ -423,6 +427,7 @@ Eventos sugeridos:
 - [ ] Middleware admin
 
 ### Admin
+
 - [ ] Auth (login/register)
 - [ ] CRUD Guías
 - [ ] CRUD Ejercicios (flags)
@@ -432,6 +437,7 @@ Eventos sugeridos:
 - [ ] Formularios validados (zod)
 
 ### Estudiantes
+
 - [ ] Listado guías
 - [ ] Vista guía
 - [ ] Vista ejercicio + editor
@@ -445,6 +451,7 @@ Eventos sugeridos:
 - [ ] Typewriter
 
 ### Optimización
+
 - [ ] Streaming SSE
 - [ ] Métricas cliente
 - [ ] Accesibilidad
@@ -475,11 +482,11 @@ Eventos sugeridos:
 
 ## 28. Fallback Feedback (Simplificado)
 
-| Caso | Condición | Acción | Evento |
-|------|-----------|--------|--------|
-| Válido | `content_md.trim() !== ''` | Render Markdown | `feedback_generated` |
-| Vacío | `!content_md || content_md.trim()===''` | Panel “Feedback no disponible” + CTA Reintentar | `feedback_missing` |
-| Error red | Excepción | Toast + permitir reintento | `feedback_error` |
+| Caso      | Condición                  | Acción                     | Evento                  |
+| --------- | -------------------------- | -------------------------- | ----------------------- | ----------------------------------------------- | ------------------ |
+| Válido    | `content_md.trim() !== ''` | Render Markdown            | `feedback_generated`    |
+| Vacío     | `!content_md               |                            | content_md.trim()===''` | Panel “Feedback no disponible” + CTA Reintentar | `feedback_missing` |
+| Error red | Excepción                  | Toast + permitir reintento | `feedback_error`        |
 
 No se exige análisis de secciones del Markdown.
 
@@ -488,6 +495,7 @@ No se exige análisis de secciones del Markdown.
 ## 29. Auditoría Continua
 
 Cada milestone:
+
 - Revisar stores (no duplicar datos remotos).
 - Verificar nuevas entidades → schemas + query keys.
 - Confirmar fallback feedback sigue aplicado.
@@ -507,4 +515,5 @@ Cada milestone:
 Última revisión: (actualizar manualmente al modificar)
 
 ---
+
 Documento vivo. Mantener alineado con Backend.

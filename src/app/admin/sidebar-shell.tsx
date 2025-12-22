@@ -1,31 +1,31 @@
-"use client"
-import React from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { adminNavItems } from '@/config/admin-navigation'
-import { useSessionStore } from '@/shared/stores/session-store'
-import { useQueryClient } from '@tanstack/react-query'
-import { queryKeys } from '@/shared/api/query-keys'
-import type { Guide } from '@/shared/api/schemas'
-import { useRouter } from 'next/navigation'
-import { HomeIcon, LogOut, User as UserIcon } from 'lucide-react'
-import { Button } from '@/shared/ui/button'
+'use client';
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { adminNavItems } from '@/config/admin-navigation';
+import { useSessionStore } from '@/shared/stores/session-store';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/shared/api/query-keys';
+import type { Guide } from '@/shared/api/schemas';
+import { useRouter } from 'next/navigation';
+import { HomeIcon, LogOut, User as UserIcon } from 'lucide-react';
+import { Button } from '@/shared/ui/button';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator
-} from '@/shared/ui/dropdown-menu'
+  DropdownMenuSeparator,
+} from '@/shared/ui/dropdown-menu';
 import {
   Breadcrumb,
   BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/shared/ui/breadcrumb'
+  BreadcrumbSeparator,
+} from '@/shared/ui/breadcrumb';
 import {
   SidebarProvider,
   Sidebar,
@@ -41,68 +41,68 @@ import {
   SidebarTrigger,
   SidebarSeparator,
   SidebarRail,
-  SidebarFooter
-} from '@/shared/ui/sidebar'
+  SidebarFooter,
+} from '@/shared/ui/sidebar';
 
 export function SidebarShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  const { user, logOut } = useSessionStore()
-  const router = useRouter()
+  const pathname = usePathname();
+  const { user, logOut } = useSessionStore();
+  const router = useRouter();
 
   // genera breadcrumbs a partir del pathname /admin/... evitando ids dinamicos específicos
-  const segments = pathname.split('/').filter(Boolean) // remove empty
-  const breadcrumbSegments = segments.slice(1) // remove 'admin'
-  const qc = useQueryClient()
-  const isGuideEdit = /\/admin\/guides\/[0-9a-fA-F-\-]{8,}\/edit$/.test(pathname)
-  let guideTitle: string | undefined
+  const segments = pathname.split('/').filter(Boolean); // remove empty
+  const breadcrumbSegments = segments.slice(1); // remove 'admin'
+  const qc = useQueryClient();
+  const isGuideEdit = /\/admin\/guides\/[0-9a-fA-F-\-]{8,}\/edit$/.test(pathname);
+  let guideTitle: string | undefined;
   if (isGuideEdit) {
-    const parts = pathname.split('/')
-    const guideId = parts[parts.indexOf('guides') + 1]
-  const cached = qc.getQueryData<Guide>(queryKeys.guideDetail(guideId))
-  if (cached?.title) guideTitle = cached.title
-    else guideTitle = guideId ? guideId.slice(0,7) : undefined
+    const parts = pathname.split('/');
+    const guideId = parts[parts.indexOf('guides') + 1];
+    const cached = qc.getQueryData<Guide>(queryKeys.guideDetail(guideId));
+    if (cached?.title) guideTitle = cached.title;
+    else guideTitle = guideId ? guideId.slice(0, 7) : undefined;
   }
 
   const breadcrumbItems = breadcrumbSegments.map((seg, idx, arr) => {
-    const href = '/admin/' + arr.slice(0, idx + 1).join('/')
-    const isLast = idx === arr.length - 1
-    const isDynamic = /\[|\]|^[0-9a-fA-F-]{8,}$/.test(seg)
-    let label = seg
+    const href = '/admin/' + arr.slice(0, idx + 1).join('/');
+    const isLast = idx === arr.length - 1;
+    const isDynamic = /\[|\]|^[0-9a-fA-F-]{8,}$/.test(seg);
+    let label = seg;
 
     // Segmento 'edit' siempre se muestra como 'Editar'
     if (seg === 'edit') {
-      label = 'Editar'
+      label = 'Editar';
     } else if (isGuideEdit && seg !== 'edit' && isDynamic && guideTitle) {
       // ID de la guía: usar título si disponible
-      label = guideTitle
+      label = guideTitle;
     } else if (isDynamic) {
-      if (pathname.includes('/create')) label = 'Crear'
-      else if (!isLast && seg !== 'edit') label = 'Detalle'
+      if (pathname.includes('/create')) label = 'Crear';
+      else if (!isLast && seg !== 'edit') label = 'Detalle';
     }
 
     if (label === seg) {
       // Normalizar sólo si no lo reemplazamos ya por frases tipo Editar / Crear / Detalle / título
-      label = label.replace(/-/g, ' ')
-      label = label.charAt(0).toUpperCase() + label.slice(1)
+      label = label.replace(/-/g, ' ');
+      label = label.charAt(0).toUpperCase() + label.slice(1);
     }
-    return { href, label, isLast }
-  })
+    return { href, label, isLast };
+  });
 
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full overflow-x-hidden">
         <Sidebar collapsible="icon" variant="sidebar">
           <SidebarContent>
-          <SidebarHeader>
-              <SidebarTrigger className='ml-0.5' />
-          </SidebarHeader>
+            <SidebarHeader>
+              <SidebarTrigger className="ml-0.5" />
+            </SidebarHeader>
             <SidebarGroup>
               <SidebarGroupLabel>Navegación</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {adminNavItems.map(item => {
-                    const active = pathname.startsWith(item.href)
-                    const Icon = item.icon
+                  {adminNavItems.map((item) => {
+                    const active = pathname.startsWith(item.href);
+                    const Icon = item.icon;
                     return (
                       <SidebarMenuItem key={item.href}>
                         <SidebarMenuButton asChild isActive={active} tooltip={item.label}>
@@ -112,7 +112,7 @@ export function SidebarShell({ children }: { children: React.ReactNode }) {
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
-                    )
+                    );
                   })}
                 </SidebarMenu>
               </SidebarGroupContent>
@@ -127,26 +127,32 @@ export function SidebarShell({ children }: { children: React.ReactNode }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" side="top" className="w-56">
-                <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Sesión</DropdownMenuLabel>
+                <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                  Sesión
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
-                    logOut()
-                    try { router.push('/autenticacion/iniciar-sesion') } catch {}
+                    logOut();
+                    try {
+                      router.push('/autenticacion/iniciar-sesion');
+                    } catch {}
                   }}
                   className="gap-2 cursor-pointer hover:bg-muted transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Cerrar sesión</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                    className="gap-2 cursor-pointer hover:bg-muted transition-colors" 
-                    onClick={() => {
-                      try { router.push('/') } catch {}
-                    }}
+                <DropdownMenuItem
+                  className="gap-2 cursor-pointer hover:bg-muted transition-colors"
+                  onClick={() => {
+                    try {
+                      router.push('/');
+                    } catch {}
+                  }}
                 >
-                    <HomeIcon className="h-4 w-4" />
-                    <span>Ir al sitio</span>
+                  <HomeIcon className="h-4 w-4" />
+                  <span>Ir al sitio</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -166,7 +172,7 @@ export function SidebarShell({ children }: { children: React.ReactNode }) {
                         <Link href="/admin">Admin</Link>
                       </BreadcrumbLink>
                     </BreadcrumbItem>
-                    {breadcrumbItems.map(item => (
+                    {breadcrumbItems.map((item) => (
                       <React.Fragment key={item.href}>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
@@ -193,5 +199,5 @@ export function SidebarShell({ children }: { children: React.ReactNode }) {
         </SidebarInset>
       </div>
     </SidebarProvider>
-  )
+  );
 }

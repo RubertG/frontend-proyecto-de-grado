@@ -1,0 +1,19 @@
+# Build outputs
+.next/
+out/
+build/
+dist/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Generated files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+.next/types/
+
+# Misc
+*.log
+.DS_Store
