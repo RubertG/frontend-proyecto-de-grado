@@ -88,7 +88,7 @@ function LlmStatusClient() {
           title="Último error Lazy"
           description="Mensaje de error reciente"
           value={
-            <span className="text-xs break-words max-w-[240px] inline-block align-top">
+            <span className="text-xs wrap-break-word max-w-60 inline-block align-top">
               {data?.last_lazy_error || '—'}
             </span>
           }

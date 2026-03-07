@@ -1,4 +1,4 @@
-import { BookOpenText, Dumbbell, History, Cpu, BarChart3 } from 'lucide-react';
+import { BookOpenText, Dumbbell, History, Cpu, BarChart3, TrendingUp } from 'lucide-react';
 
 export type AdminNavItem = {
   href: string;
@@ -12,4 +12,5 @@ export const adminNavItems: AdminNavItem[] = [
   { href: '/admin/attempts', label: 'Intentos', icon: History },
   { href: '/admin/llm-status', label: 'LLM Status', icon: Cpu },
   { href: '/admin/metrics', label: 'Métricas', icon: BarChart3 },
+  { href: '/admin/progress', label: 'Progreso', icon: TrendingUp },
 ];

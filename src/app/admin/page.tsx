@@ -48,6 +48,8 @@ export default function AdminDashboardPage() {
                         return 'Monitorea el estado y configuración del motor LLM.';
                       case '/admin/metrics':
                         return 'Consulta métricas y analíticas agregadas.';
+                      case '/admin/progress':
+                        return 'Monitorea el progreso general y por guía de cada estudiante.';
                       default:
                         return 'Ir a la sección.';
                     }
@@ -62,6 +64,8 @@ export default function AdminDashboardPage() {
                   {item.href === '/admin/guides' && 'Estructura de aprendizaje y progresión.'}
                   {item.href === '/admin/llm-status' && 'Estado de integración y límites.'}
                   {item.href === '/admin/metrics' && 'Evolución del uso y desempeño.'}
+                  {item.href === '/admin/progress' &&
+                    'Seguimiento de avance por usuario y por guía.'}
                 </div>
               </CardContent>
               <CardFooter className="pt-0">

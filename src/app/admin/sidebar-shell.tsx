@@ -51,7 +51,16 @@ export function SidebarShell({ children }: { children: React.ReactNode }) {
 
   // genera breadcrumbs a partir del pathname /admin/... evitando ids dinamicos específicos
   const segments = pathname.split('/').filter(Boolean); // remove empty
-  const breadcrumbSegments = segments.slice(1); // remove 'admin'
+  const breadcrumbSegments = segments
+    .slice(1) // remove 'admin'
+    .filter((seg, idx, arr) => {
+      // En /admin/progress/users/[id] y /admin/progress/guides/[id],
+      // ocultamos el segmento intermedio para evitar rutas inexistentes.
+      if (arr[0] === 'progress' && idx === 1 && (seg === 'users' || seg === 'guides')) {
+        return false;
+      }
+      return true;
+    });
   const qc = useQueryClient();
   const isGuideEdit = /\/admin\/guides\/[0-9a-fA-F-\-]{8,}\/edit$/.test(pathname);
   let guideTitle: string | undefined;
@@ -77,7 +86,7 @@ export function SidebarShell({ children }: { children: React.ReactNode }) {
       label = guideTitle;
     } else if (isDynamic) {
       if (pathname.includes('/create')) label = 'Crear';
-      else if (!isLast && seg !== 'edit') label = 'Detalle';
+      else if (seg !== 'edit') label = 'Detalle';
     }
 
     if (label === seg) {
@@ -172,8 +181,8 @@ export function SidebarShell({ children }: { children: React.ReactNode }) {
                         <Link href="/admin">Admin</Link>
                       </BreadcrumbLink>
                     </BreadcrumbItem>
-                    {breadcrumbItems.map((item) => (
-                      <React.Fragment key={item.href}>
+                    {breadcrumbItems.map((item, idx) => (
+                      <React.Fragment key={`${idx}-${item.href}`}>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
                           {item.isLast ? (

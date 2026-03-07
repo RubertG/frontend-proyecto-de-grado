@@ -7,6 +7,7 @@ export const UserSchema = z.object({
   role: z.enum(['admin', 'student']),
 });
 export type User = z.infer<typeof UserSchema>;
+export const UserListSchema = z.array(UserSchema);
 
 export const GuideSchema = z.object({
   id: z.string().uuid(),
@@ -193,6 +194,118 @@ export const ProgressOverviewSchema = z.object({
   guides: z.array(ProgressOverviewGuideSchema),
 });
 export type ProgressOverview = z.infer<typeof ProgressOverviewSchema>;
+
+export const AdminProgressStatusSchema = z.enum(['not_started', 'in_progress', 'completed']);
+export type AdminProgressStatus = z.infer<typeof AdminProgressStatusSchema>;
+
+export const AdminProgressOverviewSummarySchema = z.object({
+  total_students: z.number(),
+  avg_completion_percent: z.number(),
+  total_guides: z.number(),
+  total_exercises: z.number(),
+});
+
+export const AdminProgressOverviewItemSchema = z.object({
+  user_id: z.string().uuid(),
+  name: z.string(),
+  email: z.string().email(),
+  completed_exercises: z.number(),
+  total_exercises: z.number(),
+  percent: z.number(),
+  status: AdminProgressStatusSchema,
+  last_activity_at: z.string().nullable().optional(),
+});
+export type AdminProgressOverviewItem = z.infer<typeof AdminProgressOverviewItemSchema>;
+
+export const AdminProgressOverviewResponseSchema = z.object({
+  summary: AdminProgressOverviewSummarySchema,
+  items: z.array(AdminProgressOverviewItemSchema),
+  limit: z.number().optional(),
+  offset: z.number().optional(),
+  count: z.number().optional(),
+});
+export type AdminProgressOverviewResponse = z.infer<typeof AdminProgressOverviewResponseSchema>;
+
+export const AdminProgressByGuideGuideSchema = z.object({
+  guide_id: z.string().uuid(),
+  title: z.string(),
+  order: z.number().nullable().optional(),
+  total_exercises: z.number(),
+});
+
+export const AdminProgressByGuideSummarySchema = z.object({
+  students_total: z.number(),
+  students_completed: z.number(),
+  completion_percent: z.number(),
+});
+
+export const AdminProgressByGuideItemSchema = z.object({
+  user_id: z.string().uuid(),
+  name: z.string(),
+  email: z.string().email(),
+  completed_exercises: z.number(),
+  total_exercises: z.number(),
+  percent: z.number(),
+  status: AdminProgressStatusSchema,
+  completed: z.boolean().optional(),
+  completed_at: z.string().nullable().optional(),
+  last_activity_at: z.string().nullable().optional(),
+});
+export type AdminProgressByGuideItem = z.infer<typeof AdminProgressByGuideItemSchema>;
+
+export const AdminProgressByGuideResponseSchema = z.object({
+  guide: AdminProgressByGuideGuideSchema,
+  summary: AdminProgressByGuideSummarySchema,
+  items: z.array(AdminProgressByGuideItemSchema),
+  limit: z.number().optional(),
+  offset: z.number().optional(),
+  count: z.number().optional(),
+});
+export type AdminProgressByGuideResponse = z.infer<typeof AdminProgressByGuideResponseSchema>;
+
+export const AdminProgressByUserExerciseSchema = z.object({
+  exercise_id: z.string().uuid(),
+  title: z.string(),
+  completed: z.boolean(),
+  attempts_count: z.number().int().optional(),
+});
+
+export const AdminProgressByUserGuideSchema = z.object({
+  guide_id: z.string().uuid(),
+  title: z.string(),
+  order: z.number().nullable().optional(),
+  completed_exercises: z.number(),
+  total_exercises: z.number(),
+  percent: z.number().nullable().optional(),
+  status: AdminProgressStatusSchema.optional(),
+  completed: z.boolean().optional(),
+  completed_at: z.string().nullable().optional(),
+  exercises: z.array(AdminProgressByUserExerciseSchema).optional(),
+});
+export type AdminProgressByUserGuide = z.infer<typeof AdminProgressByUserGuideSchema>;
+
+export const AdminProgressByUserTotalsSchema = z.object({
+  completed_guides: z.number(),
+  total_guides: z.number(),
+  completed_exercises: z.number(),
+  total_exercises: z.number(),
+  percent_exercises: z.number().nullable().optional(),
+});
+
+const AdminProgressByUserLiteUserSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  email: z.string().email(),
+  role: z.string().optional(),
+});
+
+export const AdminProgressByUserResponseSchema = z.object({
+  user: AdminProgressByUserLiteUserSchema,
+  totals: AdminProgressByUserTotalsSchema,
+  guides: z.array(AdminProgressByUserGuideSchema),
+  last_activity_at: z.string().nullable().optional(),
+});
+export type AdminProgressByUserResponse = z.infer<typeof AdminProgressByUserResponseSchema>;
 
 // Métricas agregadas (Dashboard Admin)
 // NOTA: Todos optional para tolerar evolución de backend sin romper parse.

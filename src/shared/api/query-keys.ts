@@ -21,4 +21,26 @@ export const queryKeys = {
   usersAll: () => ['users', 'all'] as const,
   metricsOverviewItems: (filters: { userId?: string; exerciseId?: string; limit?: number }) =>
     ['metrics', 'overview', 'items', filters] as const,
+  adminProgressOverview: (filters: {
+    guideId?: string;
+    userId?: string;
+    status?: string;
+    minPercent?: number;
+    maxPercent?: number;
+    limit?: number;
+    offset?: number;
+  }) => ['admin-progress', 'overview', filters] as const,
+  adminProgressByGuide: (
+    guideId: string,
+    filters: {
+      userId?: string;
+      status?: string;
+      minPercent?: number;
+      maxPercent?: number;
+      limit?: number;
+      offset?: number;
+    },
+  ) => ['admin-progress', 'by-guide', guideId, filters] as const,
+  adminProgressByUser: (userId: string, includeExercises?: boolean) =>
+    ['admin-progress', 'by-user', userId, includeExercises ? 'with-exercises' : 'basic'] as const,
 };
