@@ -14,12 +14,25 @@ import { MonacoControlledEditor } from '@/features/exercises/components/monaco-c
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/shared/ui/select';
 import { Switch } from '@/shared/ui/switch';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/shared/ui/form';
 import { toast } from 'sonner';
 import { Loader } from '@/shared/ui/Loader';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from '@/shared/ui/command';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/shared/lib/utils';
+import { useGuidesQuery } from '@/features/guides/hooks/use-guides';
 
 const schema = z.object({
+  guide_id: z.string().uuid(),
   title: z.string().min(1),
   content_html: z.string().optional(),
   expected_answer: z.string().min(1).optional(),
@@ -34,8 +47,10 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function EditExercisePage() {
+  const [openGuides, setOpenGuides] = useState(false);
   const params = useParams<{ exerciseId: string }>();
   const id = params.exerciseId;
+  const { data: guidesData } = useGuidesQuery();
   const { data, isLoading } = useExerciseQuery(id);
   const router = useRouter();
   const mutation = useUpdateExerciseMutation(id, data?.guide_id || '');
@@ -43,6 +58,7 @@ export default function EditExercisePage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
+      guide_id: '',
       title: '',
       content_html: '',
       expected_answer: '',
@@ -59,6 +75,7 @@ export default function EditExercisePage() {
   useEffect(() => {
     if (data) {
       reset({
+        guide_id: data.guide_id,
         title: data.title,
         content_html: data.content_html || '',
         expected_answer: data.expected_answer || '',
@@ -93,6 +110,68 @@ export default function EditExercisePage() {
       {!isLoading && (
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="guide_id"
+              render={({ field }) => (
+                <FormItem className="flex flex-col max-w-[500px]">
+                  <FormLabel>Guía</FormLabel>
+                  <Popover open={openGuides} onOpenChange={setOpenGuides}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn('justify-between', !field.value && 'text-muted-foreground')}
+                        >
+                          {field.value
+                            ? guidesData?.find((guide) => guide.id === field.value)?.title ||
+                              'Guía seleccionada'
+                            : 'Seleccionar guía...'}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Buscar guía..." />
+                        <CommandList>
+                          <CommandEmpty>No se encontraron guías</CommandEmpty>
+                          <CommandGroup>
+                            {guidesData?.map((guide) => (
+                              <CommandItem
+                                value={`${guide.title} ${guide.topic || ''}`}
+                                key={guide.id}
+                                onSelect={() => {
+                                  field.onChange(guide.id);
+                                  setOpenGuides(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'mr-2 h-4 w-4',
+                                    guide.id === field.value ? 'opacity-100' : 'opacity-0',
+                                  )}
+                                />
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{guide.title}</span>
+                                  {guide.topic && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {guide.topic}
+                                    </span>
+                                  )}
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="title"

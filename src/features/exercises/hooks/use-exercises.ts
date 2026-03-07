@@ -57,9 +57,10 @@ export function useUpdateExerciseMutation(id: string, guideId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: UpdateExerciseInput) => updateExercise(id, input),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: queryKeys.exerciseDetail(id) });
       qc.invalidateQueries({ queryKey: queryKeys.exercisesByGuide(guideId) });
+      qc.invalidateQueries({ queryKey: queryKeys.exercisesByGuide(data.guide_id) });
       qc.invalidateQueries({ queryKey: queryKeys.exercisesAll() });
     },
   });

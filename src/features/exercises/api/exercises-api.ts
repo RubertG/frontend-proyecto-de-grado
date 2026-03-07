@@ -41,6 +41,7 @@ export const createExercise = (input: CreateExerciseInput) =>
   apiFetch('/exercises/', { method: 'POST', body: JSON.stringify(input), schema: ExerciseSchema });
 
 export interface UpdateExerciseInput {
+  guide_id?: string;
   title?: string;
   content_html?: string;
   expected_answer?: string;
